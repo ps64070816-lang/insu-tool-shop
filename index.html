@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>인수의 공구가게</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: 'Malgun Gothic', sans-serif;
+    background-color: #f5f5f2;
+    color: #222;
+  }
+
+  /* 상단 */
+  .topbar {
+    background-color: #1c1c1c;
+    color: #ccc;
+    font-size: 13px;
+    text-align: center;
+    padding: 6px;
+  }
+  header {
+    background-color: #222;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+    border-bottom: 5px solid #f5b400;
+  }
+  .logo {
+    font-size: 28px;
+    font-weight: bold;
+    color: #f5b400;
+    text-decoration: none;
+  }
+  .logo span { color: white; }
+  .search {
+    flex: 1;
+    display: flex;
+    max-width: 480px;
+    min-width: 200px;
+  }
+  .search input {
+    flex: 1;
+    padding: 10px 12px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+    font-size: 15px;
+  }
+  .search button {
+    padding: 10px 16px;
+    border: none;
+    background-color: #f5b400;
+    font-weight: bold;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+  }
+  .cart-btn {
+    background: none;
+    border: 2px solid #f5b400;
+    color: #f5b400;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .cart-btn b {
+    background-color: #f5b400;
+    color: #222;
+    border-radius: 10px;
+    padding: 1px 8px;
+    margin-left: 4px;
+  }
+
+  /* 메뉴 */
+  nav {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    background-color: white;
+    border-bottom: 1px solid #ddd;
+  }
+  nav button {
+    background: none;
+    border: none;
+    padding: 14px 18px;
+    font-size: 15px;
+    font-weight: bold;
+    color: #444;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+  }
+  nav button.active, nav button:hover {
+    color: #222;
+    border-bottom-color: #f5b400;
+  }
+
+  /* 배너 슬라이드 */
+  .slider {
+    position: relative;
+    overflow: hidden;
+    height: 240px;
+  }
+  .slides {
+    display: flex;
+    height: 100%;
+    transition: transform 0.5s;
+  }
+  .slide {
+    min-width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 10%;
+    color: white;
+  }
+  .slide h2 { margin: 0 0 10px; font-size: 30px; }
+  .slide p { margin: 0; font-size: 17px; }
+  .slide:nth-child(1) { background: linear-gradient(120deg, #222 40%, #4a3a00); }
+  .slide:nth-child(2) { background: linear-gradient(120deg, #7a2b00, #d65a00); }
+  .slide:nth-child(3) { background: linear-gradient(120deg, #0d3b56, #1e6fa6); }
+  .slide-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.35);
+    color: white;
+    border: none;
+    font-size: 22px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  .slide-arrow.prev { left: 12px; }
+  .slide-arrow.next { right: 12px; }
+  .dots {
+    position: absolute;
+    bottom: 12px;
+    width: 100%;
+    text-align: center;
+  }
+  .dots span {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin: 0 4px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    cursor: pointer;
+  }
+  .dots span.on { background: #f5b400; }
+
+  /* 혜택 */
+  .perks {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    max-width: 1100px;
+    margin: 24px auto 0;
+    padding: 0 16px;
+  }
+  .perk {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    font-size: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+  .perk strong { display: block; font-size: 16px; margin: 4px 0; }
+
+  /* 상품 */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 16px 40px;
+  }
+  .list-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .list-head h3 { margin: 0; font-size: 22px; }
+  .list-head select {
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.15s;
+  }
+  .card:hover { transform: translateY(-3px); }
+  .card .img {
+    position: relative;
+    background: #efeee8;
+    font-size: 64px;
+    text-align: center;
+    padding: 28px 0;
+  }
+  .badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #d62828;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 3px;
+  }
+  .badge.best { background: #f5b400; color: #222; }
+  .card .info {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .card .brand { font-size: 12px; color: #888; }
+  .card .name { font-weight: bold; margin: 4px 0 8px; font-size: 15px; }
+  .card .price { margin-top: auto; }
+  .card .price del { color: #999; font-size: 13px; margin-right: 6px; }
+  .card .price strong { font-size: 18px; }
+  .card .price .rate { color: #d62828; font-weight: bold; margin-right: 4px; }
+  .card .stock { font-size: 12px; color: #2a7d2a; margin-top: 4px; }
+  .card .stock.low { color: #d62828; }
+  .card button {
+    margin-top: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    background: #222;
+    color: #f5b400;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .card button:hover { background: #000; }
+  .empty {
+    text-align: center;
+    padding: 60px 0;
+    color: #777;
+  }
+
+  /* 장바구니 */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+  }
+  .overlay.open { display: block; }
+  .drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 360px;
+    max-width: 100%;
+    height: 100%;
+    background: white;
+    transform: translateX(100%);
+    transition: transform 0.3s;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+  }
+  .drawer.open { transform: translateX(0); }
+  .drawer-head {
+    background: #222;
+    color: white;
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .drawer-head button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+  }
+  .cart-items { flex: 1; overflow-y: auto; padding: 8px 16px; }
+  .cart-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #eee;
+  }
+  .cart-item .emoji { font-size: 32px; }
+  .cart-item .meta { flex: 1; font-size: 14px; }
+  .cart-item .meta div:last-child { color: #555; margin-top: 2px; }
+  .qty button {
+    width: 26px;
+    height: 26px;
+    border: 1px solid #ccc;
+    background: white;
+    cursor: pointer;
+  }
+  .qty span { display: inline-block; width: 24px; text-align: center; }
+  .drawer-foot { padding: 16px; border-top: 2px solid #eee; }
+  .drawer-foot .row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
+  .drawer-foot .total { font-size: 18px; font-weight: bold; }
+  .drawer-foot button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 14px;
+    border: none;
+    border-radius: 4px;
+    background: #f5b400;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  /* 토스트 */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #222;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    transition: transform 0.3s;
+    z-index: 20;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* 하단 */
+  footer {
+    background: #1c1c1c;
+    color: #aaa;
+    font-size: 13px;
+    padding: 28px 16px;
+    text-align: center;
+    line-height: 1.8;
+  }
+  footer strong { color: #f5b400; font-size: 16px; }
+
+  @media (max-width: 600px) {
+    .logo { font-size: 22px; }
+    .slide h2 { font-size: 22px; }
+    .slider { height: 200px; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .card .img { font-size: 48px; padding: 18px 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">🔧 5만원 이상 구매 시 무료배송 · 평일 오후 3시 이전 주문 당일 출고</div>
+
+<header>
+  <a class="logo" href="#">🛠️ 인수의 <span>공구가게</span></a>
+  <form class="search" onsubmit="doSearch(event)">
+    <input id="searchInput" type="text" placeholder="드릴, 렌치, 줄자... 공구를 검색하세요">
+    <button type="submit">검색</button>
+  </form>
+  <button class="cart-btn" onclick="toggleCart(true)">🛒 장바구니<b id="cartCount">0</b></button>
+</header>
+
+<nav id="categoryNav"></nav>
+
+<div class="slider">
+  <div class="slides" id="slides">
+    <div class="slide">
+      <h2>현장에서 믿고 쓰는 공구, 인수의 공구가게</h2>
+      <p>전동공구부터 수공구, 안전용품까지 한 곳에서</p>
+    </div>
+    <div class="slide">
+      <h2>🔥 전동공구 가을 특가전 최대 30% 할인</h2>
+      <p>충전 드릴 · 그라인더 · 임팩 드라이버 한정 수량</p>
+    </div>
+    <div class="slide">
+      <h2>첫 구매 고객 5,000원 할인 쿠폰 증정</h2>
+      <p>회원가입만 해도 바로 사용 가능!</p>
+    </div>
+  </div>
+  <button class="slide-arrow prev" onclick="moveSlide(-1)">‹</button>
+  <button class="slide-arrow next" onclick="moveSlide(1)">›</button>
+  <div class="dots" id="dots"></div>
+</div>
+
+<section class="perks">
+  <div class="perk">🚚<strong>빠른 배송</strong>오후 3시 전 주문 당일 출고</div>
+  <div class="perk">🛡️<strong>정품 보증</strong>공식 대리점 정품만 취급</div>
+  <div class="perk">🔁<strong>무료 교환</strong>초기 불량 7일 내 교환</div>
+  <div class="perk">📞<strong>공구 상담</strong>010-1234-5678</div>
+</section>
+
+<main>
+  <div class="list-head">
+    <h3 id="listTitle">전체 상품</h3>
+    <select id="sortSelect" onchange="renderProducts()">
+      <option value="default">추천순</option>
+      <option value="low">낮은 가격순</option>
+      <option value="high">높은 가격순</option>
+      <option value="discount">할인율순</option>
+    </select>
+  </div>
+  <div class="grid" id="productGrid"></div>
+</main>
+
+<div class="overlay" id="overlay" onclick="toggleCart(false)"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <strong>🛒 장바구니</strong>
+    <button onclick="toggleCart(false)">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="drawer-foot">
+    <div class="row"><span>상품 금액</span><span id="subtotal">0원</span></div>
+    <div class="row"><span>배송비</span><span id="shipping">0원</span></div>
+    <div class="row total"><span>결제 금액</span><span id="total">0원</span></div>
+    <button onclick="checkout()">주문하기</button>
+  </div>
+</aside>
+
+<div class="toast" id="toast"></div>
+
+<footer>
+  <strong>🛠️ 인수의 공구가게</strong><br>
+  대표: 인수 · 주소: 서울 양천구 안양천 다리아래 · 고객센터: 010-1234-5678<br>
+  영업시간: 평일 08:00 ~ 19:00 / 토요일 08:00 ~ 15:00 (일요일·공휴일 휴무)<br>
+  © 2026 인수의 공구가게. All rights reserved.
+</footer>
+
+<script>
+  const products = [
+    { id: 1,  cat: '전동공구', brand: '파워맥스', name: '18V 충전 드릴 드라이버 세트', emoji: '🔩', price: 189000, sale: 139000, stock: 12, best: true },
+    { id: 2,  cat: '전동공구', brand: '파워맥스', name: '4인치 앵글 그라인더', emoji: '⚙️', price: 79000, sale: 59000, stock: 8 },
+    { id: 3,  cat: '전동공구', brand: '강철공업', name: '충전 임팩 드라이버 20V', emoji: '🔋', price: 159000, sale: 129000, stock: 3 },
+    { id: 4,  cat: '전동공구', brand: '강철공업', name: '원형톱 7인치', emoji: '🪚', price: 135000, sale: 135000, stock: 6 },
+    { id: 5,  cat: '수공구', brand: '대한공구', name: '양구 스패너 8종 세트', emoji: '🔧', price: 42000, sale: 34000, stock: 25, best: true },
+    { id: 6,  cat: '수공구', brand: '대한공구', name: '장도리 망치 16oz', emoji: '🔨', price: 18000, sale: 15000, stock: 40 },
+    { id: 7,  cat: '수공구', brand: '정밀툴', name: '정밀 드라이버 32종 세트', emoji: '🪛', price: 25000, sale: 19900, stock: 18 },
+    { id: 8,  cat: '수공구', brand: '정밀툴', name: '롱노즈 플라이어 6인치', emoji: '🗜️', price: 12000, sale: 12000, stock: 30 },
+    { id: 9,  cat: '측정공구', brand: '정밀툴', name: '자동 줄자 5.5m', emoji: '📏', price: 9900, sale: 7900, stock: 50, best: true },
+    { id: 10, cat: '측정공구', brand: '레이저원', name: '레이저 거리 측정기 40m', emoji: '📐', price: 69000, sale: 54000, stock: 4 },
+    { id: 11, cat: '측정공구', brand: '레이저원', name: '디지털 수평계 600mm', emoji: '📊', price: 39000, sale: 39000, stock: 9 },
+    { id: 12, cat: '안전용품', brand: '세이프가드', name: '안전모 (KCs 인증)', emoji: '⛑️', price: 15000, sale: 12000, stock: 60 },
+    { id: 13, cat: '안전용품', brand: '세이프가드', name: '코팅 작업장갑 10켤레', emoji: '🧤', price: 8000, sale: 6500, stock: 100, best: true },
+    { id: 14, cat: '안전용품', brand: '세이프가드', name: '보안경 투명', emoji: '🥽', price: 6000, sale: 6000, stock: 45 },
+    { id: 15, cat: '철물·부자재', brand: '대한철물', name: '피스·나사 혼합 500개입', emoji: '🔩', price: 14000, sale: 11000, stock: 35 },
+    { id: 16, cat: '철물·부자재', brand: '대한철물', name: '공구함 3단 철제', emoji: '🧰', price: 45000, sale: 36000, stock: 7, best: true },
+    { id: 17, cat: '철물·부자재', brand: '대한철물', name: '접이식 알루미늄 사다리 4단', emoji: '🪜', price: 89000, sale: 72000, stock: 2 },
+    { id: 18, cat: '철물·부자재', brand: '대한철물', name: '와이어 케이블 타이 200개', emoji: '🧷', price: 5000, sale: 5000, stock: 80 },
+  ];
+
+  const categories = ['전체', '전동공구', '수공구', '측정공구', '안전용품', '철물·부자재', '특가', '베스트'];
+  const FREE_SHIPPING = 50000;
+  const SHIPPING_FEE = 3000;
+
+  let currentCat = '전체';
+  let keyword = '';
+  let cart = loadCart();
+
+  const won = n => n.toLocaleString('ko-KR') + '원';
+  const discount = p => Math.round((1 - p.sale / p.price) * 100);
+
+  function loadCart() {
+    try { return JSON.parse(localStorage.getItem('insu-tool-cart')) || {}; }
+    catch (e) { return {}; }
+  }
+  function saveCart() {
+    try { localStorage.setItem('insu-tool-cart', JSON.stringify(cart)); } catch (e) {}
+  }
+
+  // 카테고리 메뉴
+  function renderNav() {
+    document.getElementById('categoryNav').innerHTML = categories.map(c =>
+      `<button class="${c === currentCat ? 'active' : ''}" onclick="selectCat('${c}')">${c}</button>`
+    ).join('');
+  }
+  function selectCat(c) {
+    currentCat = c;
+    keyword = '';
+    document.getElementById('searchInput').value = '';
+    renderNav();
+    renderProducts();
+    document.querySelector('main').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function doSearch(e) {
+    e.preventDefault();
+    keyword = document.getElementById('searchInput').value.trim();
+    currentCat = '전체';
+    renderNav();
+    renderProducts();
+    document.querySelector('main').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // 상품 목록
+  function renderProducts() {
+    let list = products.filter(p => {
+      if (currentCat === '특가') return p.sale < p.price;
+      if (currentCat === '베스트') return p.best;
+      return currentCat === '전체' || p.cat === currentCat;
+    });
+    if (keyword) {
+      const k = keyword.toLowerCase();
+      list = list.filter(p => (p.name + p.brand + p.cat).toLowerCase().includes(k));
+    }
+
+    const sort = document.getElementById('sortSelect').value;
+    if (sort === 'low') list.sort((a, b) => a.sale - b.sale);
+    if (sort === 'high') list.sort((a, b) => b.sale - a.sale);
+    if (sort === 'discount') list.sort((a, b) => discount(b) - discount(a));
+
+    document.getElementById('listTitle').textContent =
+      (keyword ? `'${keyword}' 검색 결과` : currentCat === '전체' ? '전체 상품' : currentCat) + ` (${list.length})`;
+
+    const grid = document.getElementById('productGrid');
+    if (!list.length) {
+      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">찾는 상품이 없어요 🔍<br>다른 검색어를 입력해 보세요.</div>';
+      return;
+    }
+    grid.innerHTML = list.map(p => {
+      const rate = discount(p);
+      const badge = rate > 0 ? `<span class="badge">${rate}% 할인</span>`
+                  : p.best ? '<span class="badge best">BEST</span>' : '';
+      return `
+        <div class="card">
+          <div class="img">${badge}${p.emoji}</div>
+          <div class="info">
+            <div class="brand">${p.brand} · ${p.cat}</div>
+            <div class="name">${p.name}</div>
+            <div class="price">
+              ${rate > 0 ? `<del>${won(p.price)}</del><br><span class="rate">${rate}%</span>` : ''}
+              <strong>${won(p.sale)}</strong>
+            </div>
+            <div class="stock ${p.stock <= 5 ? 'low' : ''}">
+              ${p.stock <= 5 ? `⚠️ 품절 임박 (${p.stock}개 남음)` : '✔ 재고 있음'}
+            </div>
+            <button onclick="addToCart(${p.id})">장바구니 담기</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  // 장바구니
+  function addToCart(id) {
+    const p = products.find(x => x.id === id);
+    const qty = cart[id] || 0;
+    if (qty >= p.stock) {
+      showToast(`재고가 ${p.stock}개뿐이에요`);
+      return;
+    }
+    cart[id] = qty + 1;
+    saveCart();
+    renderCart();
+    showToast(`🛒 ${p.name} 담았어요`);
+  }
+  function changeQty(id, d) {
+    const p = products.find(x => x.id === id);
+    const next = (cart[id] || 0) + d;
+    if (next <= 0) delete cart[id];
+    else if (next > p.stock) { showToast(`재고가 ${p.stock}개뿐이에요`); return; }
+    else cart[id] = next;
+    saveCart();
+    renderCart();
+  }
+  function renderCart() {
+    const ids = Object.keys(cart).map(Number);
+    const count = ids.reduce((s, id) => s + cart[id], 0);
+    document.getElementById('cartCount').textContent = count;
+
+    const box = document.getElementById('cartItems');
+    if (!ids.length) {
+      box.innerHTML = '<div class="empty">장바구니가 비어 있어요 🧰</div>';
+    } else {
+      box.innerHTML = ids.map(id => {
+        const p = products.find(x => x.id === id);
+        return `
+          <div class="cart-item">
+            <div class="emoji">${p.emoji}</div>
+            <div class="meta">
+              <div>${p.name}</div>
+              <div>${won(p.sale * cart[id])}</div>
+            </div>
+            <div class="qty">
+              <button onclick="changeQty(${id}, -1)">−</button>
+              <span>${cart[id]}</span>
+              <button onclick="changeQty(${id}, 1)">+</button>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    const subtotal = ids.reduce((s, id) => s + products.find(x => x.id === id).sale * cart[id], 0);
+    const shipping = subtotal === 0 || subtotal >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
+    document.getElementById('subtotal').textContent = won(subtotal);
+    document.getElementById('shipping').textContent =
+      shipping ? `${won(shipping)} (${won(FREE_SHIPPING - subtotal)} 더 담으면 무료)` : '무료';
+    document.getElementById('total').textContent = won(subtotal + shipping);
+  }
+  function toggleCart(open) {
+    document.getElementById('drawer').classList.toggle('open', open);
+    document.getElementById('overlay').classList.toggle('open', open);
+  }
+  function checkout() {
+    if (!Object.keys(cart).length) { showToast('장바구니가 비어 있어요'); return; }
+    const total = document.getElementById('total').textContent;
+    alert(`주문이 접수되었습니다!\n결제 금액: ${total}\n\n인수의 공구가게를 이용해 주셔서 감사합니다 🛠️`);
+    cart = {};
+    saveCart();
+    renderCart();
+    toggleCart(false);
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 1800);
+  }
+
+  // 배너 슬라이드
+  let slideIndex = 0;
+  const slideCount = document.querySelectorAll('.slide').length;
+  function goSlide(i) {
+    slideIndex = (i + slideCount) % slideCount;
+    document.getElementById('slides').style.transform = `translateX(-${slideIndex * 100}%)`;
+    document.querySelectorAll('#dots span').forEach((d, n) => d.classList.toggle('on', n === slideIndex));
+  }
+  function moveSlide(d) { goSlide(slideIndex + d); restartAuto(); }
+  let autoTimer;
+  function restartAuto() {
+    clearInterval(autoTimer);
+    autoTimer = setInterval(() => goSlide(slideIndex + 1), 4000);
+  }
+  document.getElementById('dots').innerHTML =
+    Array.from({ length: slideCount }, (_, i) => `<span onclick="goSlide(${i}); restartAuto()"></span>`).join('');
+
+  renderNav();
+  renderProducts();
+  renderCart();
+  goSlide(0);
+  restartAuto();
+</script>
+</body>
+</html>
