@@ -230,7 +230,8 @@
     padding: 3px 8px;
     border-radius: 3px;
   }
-  .badge.best { background: #f5b400; color: #222; }
+  .badge.best { background: #f5b400; color: #222; left: auto; right: 10px; }
+
   .card .info {
     padding: 14px;
     display: flex;
@@ -411,11 +412,13 @@
   <div class="perk">📞<strong>공구 상담</strong>010-1234-5678</div>
 </section>
 
+
 <main>
   <div class="list-head">
     <h3 id="listTitle">전체 상품</h3>
     <select id="sortSelect" onchange="renderProducts()">
       <option value="default">추천순</option>
+      <option value="sold">판매량순</option>
       <option value="low">낮은 가격순</option>
       <option value="high">높은 가격순</option>
       <option value="discount">할인율순</option>
@@ -450,27 +453,27 @@
 
 <script>
   const products = [
-    { id: 1,  cat: '전동공구', brand: '파워맥스', name: '18V 충전 드릴 드라이버 세트', emoji: '🔩', price: 189000, sale: 139000, stock: 12, best: true },
-    { id: 2,  cat: '전동공구', brand: '파워맥스', name: '4인치 앵글 그라인더', emoji: '⚙️', price: 79000, sale: 59000, stock: 8 },
-    { id: 3,  cat: '전동공구', brand: '강철공업', name: '충전 임팩 드라이버 20V', emoji: '🔋', price: 159000, sale: 129000, stock: 3 },
-    { id: 4,  cat: '전동공구', brand: '강철공업', name: '원형톱 7인치', emoji: '🪚', price: 135000, sale: 135000, stock: 6 },
-    { id: 5,  cat: '수공구', brand: '대한공구', name: '양구 스패너 8종 세트', emoji: '🔧', price: 42000, sale: 34000, stock: 25, best: true },
-    { id: 6,  cat: '수공구', brand: '대한공구', name: '장도리 망치 16oz', emoji: '🔨', price: 18000, sale: 15000, stock: 40 },
-    { id: 7,  cat: '수공구', brand: '정밀툴', name: '정밀 드라이버 32종 세트', emoji: '🪛', price: 25000, sale: 19900, stock: 18 },
-    { id: 8,  cat: '수공구', brand: '정밀툴', name: '롱노즈 플라이어 6인치', emoji: '🗜️', price: 12000, sale: 12000, stock: 30 },
-    { id: 9,  cat: '측정공구', brand: '정밀툴', name: '자동 줄자 5.5m', emoji: '📏', price: 9900, sale: 7900, stock: 50, best: true },
-    { id: 10, cat: '측정공구', brand: '레이저원', name: '레이저 거리 측정기 40m', emoji: '📐', price: 69000, sale: 54000, stock: 4 },
-    { id: 11, cat: '측정공구', brand: '레이저원', name: '디지털 수평계 600mm', emoji: '📊', price: 39000, sale: 39000, stock: 9 },
-    { id: 12, cat: '안전용품', brand: '세이프가드', name: '안전모 (KCs 인증)', emoji: '⛑️', price: 15000, sale: 12000, stock: 60 },
-    { id: 13, cat: '안전용품', brand: '세이프가드', name: '코팅 작업장갑 10켤레', emoji: '🧤', price: 8000, sale: 6500, stock: 100, best: true },
-    { id: 14, cat: '안전용품', brand: '세이프가드', name: '보안경 투명', emoji: '🥽', price: 6000, sale: 6000, stock: 45 },
-    { id: 15, cat: '철물·부자재', brand: '대한철물', name: '피스·나사 혼합 500개입', emoji: '🔩', price: 14000, sale: 11000, stock: 35 },
-    { id: 16, cat: '철물·부자재', brand: '대한철물', name: '공구함 3단 철제', emoji: '🧰', price: 45000, sale: 36000, stock: 7, best: true },
-    { id: 17, cat: '철물·부자재', brand: '대한철물', name: '접이식 알루미늄 사다리 4단', emoji: '🪜', price: 89000, sale: 72000, stock: 2 },
-    { id: 18, cat: '철물·부자재', brand: '대한철물', name: '와이어 케이블 타이 200개', emoji: '🧷', price: 5000, sale: 5000, stock: 80 },
+    { id: 1,  cat: '전동공구', brand: '파워맥스', name: '18V 충전 드릴 드라이버 세트', emoji: '🔩', price: 189000, sale: 139000, stock: 12, sold: 342 },
+    { id: 2,  cat: '전동공구', brand: '파워맥스', name: '4인치 앵글 그라인더', emoji: '⚙️', price: 79000, sale: 59000, stock: 8, sold: 188 },
+    { id: 3,  cat: '전동공구', brand: '강철공업', name: '충전 임팩 드라이버 20V', emoji: '🔋', price: 159000, sale: 129000, stock: 3, sold: 156 },
+    { id: 4,  cat: '전동공구', brand: '강철공업', name: '원형톱 7인치', emoji: '🪚', price: 135000, sale: 135000, stock: 6, sold: 74 },
+    { id: 5,  cat: '수공구', brand: '대한공구', name: '양구 스패너 8종 세트', emoji: '🔧', price: 42000, sale: 34000, stock: 25, sold: 265 },
+    { id: 6,  cat: '수공구', brand: '대한공구', name: '장도리 망치 16oz', emoji: '🔨', price: 18000, sale: 15000, stock: 40, sold: 210 },
+    { id: 7,  cat: '수공구', brand: '정밀툴', name: '정밀 드라이버 32종 세트', emoji: '🪛', price: 25000, sale: 19900, stock: 18, sold: 231 },
+    { id: 8,  cat: '수공구', brand: '정밀툴', name: '롱노즈 플라이어 6인치', emoji: '🗜️', price: 12000, sale: 12000, stock: 30, sold: 97 },
+    { id: 9,  cat: '측정공구', brand: '정밀툴', name: '자동 줄자 5.5m', emoji: '📏', price: 9900, sale: 7900, stock: 50, sold: 518 },
+    { id: 10, cat: '측정공구', brand: '레이저원', name: '레이저 거리 측정기 40m', emoji: '📐', price: 69000, sale: 54000, stock: 4, sold: 143 },
+    { id: 11, cat: '측정공구', brand: '레이저원', name: '디지털 수평계 600mm', emoji: '📊', price: 39000, sale: 39000, stock: 9, sold: 66 },
+    { id: 12, cat: '안전용품', brand: '세이프가드', name: '안전모 (KCs 인증)', emoji: '⛑️', price: 15000, sale: 12000, stock: 60, sold: 289 },
+    { id: 13, cat: '안전용품', brand: '세이프가드', name: '코팅 작업장갑 10켤레', emoji: '🧤', price: 8000, sale: 6500, stock: 100, sold: 604 },
+    { id: 14, cat: '안전용품', brand: '세이프가드', name: '보안경 투명', emoji: '🥽', price: 6000, sale: 6000, stock: 45, sold: 175 },
+    { id: 15, cat: '철물·부자재', brand: '대한철물', name: '피스·나사 혼합 500개입', emoji: '🔩', price: 14000, sale: 11000, stock: 35, sold: 322 },
+    { id: 16, cat: '철물·부자재', brand: '대한철물', name: '공구함 3단 철제', emoji: '🧰', price: 45000, sale: 36000, stock: 7, sold: 247 },
+    { id: 17, cat: '철물·부자재', brand: '대한철물', name: '접이식 알루미늄 사다리 4단', emoji: '🪜', price: 89000, sale: 72000, stock: 2, sold: 58 },
+    { id: 18, cat: '철물·부자재', brand: '대한철물', name: '와이어 케이블 타이 200개', emoji: '🧷', price: 5000, sale: 5000, stock: 80, sold: 401 },
   ];
 
-  const categories = ['전체', '전동공구', '수공구', '측정공구', '안전용품', '철물·부자재', '특가', '베스트'];
+  const categories = ['전체', '전동공구', '수공구', '측정공구', '안전용품', '철물·부자재', '특가', '인기'];
   const FREE_SHIPPING = 50000;
   const SHIPPING_FEE = 3000;
 
@@ -480,6 +483,13 @@
 
   const won = n => n.toLocaleString('ko-KR') + '원';
   const discount = p => Math.round((1 - p.sale / p.price) * 100);
+
+  // 판매량 기준 전체 순위 (1위부터)
+  const bySold = list => [...list].sort((a, b) => b.sold - a.sold);
+  const overallRank = {};
+  bySold(products).forEach((p, i) => { overallRank[p.id] = i + 1; });
+  const BEST_COUNT = 5;
+  const isBest = p => overallRank[p.id] <= BEST_COUNT;
 
   function loadCart() {
     try { return JSON.parse(localStorage.getItem('insu-tool-cart')) || {}; }
@@ -517,7 +527,7 @@
   function renderProducts() {
     let list = products.filter(p => {
       if (currentCat === '특가') return p.sale < p.price;
-      if (currentCat === '베스트') return p.best;
+      if (currentCat === '인기') return isBest(p);
       return currentCat === '전체' || p.cat === currentCat;
     });
     if (keyword) {
@@ -529,6 +539,7 @@
     if (sort === 'low') list.sort((a, b) => a.sale - b.sale);
     if (sort === 'high') list.sort((a, b) => b.sale - a.sale);
     if (sort === 'discount') list.sort((a, b) => discount(b) - discount(a));
+    if (sort === 'sold' || (sort === 'default' && currentCat === '인기')) list = bySold(list);
 
     document.getElementById('listTitle').textContent =
       (keyword ? `'${keyword}' 검색 결과` : currentCat === '전체' ? '전체 상품' : currentCat) + ` (${list.length})`;
@@ -540,8 +551,8 @@
     }
     grid.innerHTML = list.map(p => {
       const rate = discount(p);
-      const badge = rate > 0 ? `<span class="badge">${rate}% 할인</span>`
-                  : p.best ? '<span class="badge best">BEST</span>' : '';
+      const badge = (rate > 0 ? `<span class="badge">${rate}% 할인</span>` : '')
+                  + (isBest(p) ? `<span class="badge best">인기 ${overallRank[p.id]}위</span>` : '');
       return `
         <div class="card">
           <div class="img">${badge}${p.emoji}</div>
