@@ -5,277 +5,361 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>인수의 공구가게</title>
 <style>
+  :root {
+    --blue: #346aff;
+    --blue-dark: #1f4fd6;
+    --red: #e52528;
+    --green: #00891a;
+    --text: #111;
+    --gray: #767676;
+    --line: #e6e6e6;
+    --bg: #f6f7f9;
+  }
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    font-family: 'Malgun Gothic', sans-serif;
-    background-color: #f5f5f2;
-    color: #222;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    background: white;
+    color: var(--text);
+    font-size: 14px;
   }
+  button { font-family: inherit; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
 
-  /* 상단 */
-  .topbar {
-    background-color: #1c1c1c;
-    color: #ccc;
-    font-size: 13px;
-    text-align: center;
-    padding: 6px;
+  /* 맨 위 작은 메뉴 */
+  .util {
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    font-size: 12px;
+    color: #555;
   }
-  header {
-    background-color: #222;
-    color: white;
+  .util .wrap { display: flex; justify-content: space-between; padding-top: 7px; padding-bottom: 7px; }
+  .util a { color: #555; text-decoration: none; margin-right: 12px; cursor: pointer; }
+  .util .right a { margin: 0 0 0 12px; }
+
+  /* 헤더 */
+  header { border-bottom: 1px solid var(--line); background: white; position: sticky; top: 0; z-index: 15; }
+  header .wrap {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 16px 24px;
     gap: 16px;
-    flex-wrap: wrap;
-    border-bottom: 5px solid #f5b400;
+    padding-top: 14px;
+    padding-bottom: 14px;
   }
-  .logo {
-    font-size: 28px;
+  .cat-btn {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border: none;
+    background: var(--blue);
+    color: white;
+    font-size: 11px;
     font-weight: bold;
-    color: #f5b400;
-    text-decoration: none;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
   }
-  .logo span { color: white; }
+  .cat-wrap { position: relative; flex-shrink: 0; }
+  .cat-btn .bars { font-size: 22px; line-height: 1; }
+  .cat-menu {
+    display: none;
+    position: absolute;
+    top: 64px;
+    left: 0;
+    width: 200px;
+    background: white;
+    border: 1px solid var(--line);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    text-align: left;
+    z-index: 20;
+  }
+  .cat-menu.open { display: block; }
+  .cat-menu div {
+    cursor: pointer;
+    padding: 12px 16px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: normal;
+  }
+  .cat-menu div:hover { background: var(--bg); color: var(--blue); font-weight: bold; }
+  .logo {
+    text-decoration: none;
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: -1px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .logo .c1 { color: #8b3a1c; }
+  .logo .c2 { color: #e52528; }
+  .logo .c3 { color: #f5a300; }
+  .logo .c4 { color: #48a845; }
+  .logo .c5 { color: #2b8be6; }
   .search {
     flex: 1;
     display: flex;
-    max-width: 480px;
-    min-width: 200px;
+    border: 2px solid var(--blue);
+    height: 44px;
+    min-width: 0;
+  }
+  .search select {
+    border: none;
+    border-right: 1px solid var(--line);
+    padding: 0 8px;
+    font-size: 13px;
+    background: white;
+    color: #333;
+    max-width: 110px;
   }
   .search input {
     flex: 1;
-    padding: 10px 12px;
     border: none;
-    border-radius: 4px 0 0 4px;
+    padding: 0 12px;
     font-size: 15px;
+    min-width: 0;
+    outline: none;
   }
   .search button {
-    padding: 10px 16px;
+    width: 52px;
     border: none;
-    background-color: #f5b400;
-    font-weight: bold;
-    border-radius: 0 4px 4px 0;
+    background: white;
+    font-size: 20px;
     cursor: pointer;
+    color: var(--blue);
   }
-  .cart-btn {
+  .icon-btns { display: flex; gap: 6px; flex-shrink: 0; }
+  .icon-btn {
     background: none;
-    border: 2px solid #f5b400;
-    color: #f5b400;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-size: 15px;
-    font-weight: bold;
+    border: none;
     cursor: pointer;
-  }
-  .cart-btn b {
-    background-color: #f5b400;
-    color: #222;
-    border-radius: 10px;
-    padding: 1px 8px;
-    margin-left: 4px;
-  }
-
-  /* 메뉴 */
-  nav {
+    width: 64px;
     display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    background-color: white;
-    border-bottom: 1px solid #ddd;
-  }
-  nav button {
-    background: none;
-    border: none;
-    padding: 14px 18px;
-    font-size: 15px;
-    font-weight: bold;
-    color: #444;
-    cursor: pointer;
-    border-bottom: 3px solid transparent;
-  }
-  nav button.active, nav button:hover {
-    color: #222;
-    border-bottom-color: #f5b400;
-  }
-
-  /* 배너 슬라이드 */
-  .slider {
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    color: #333;
     position: relative;
-    overflow: hidden;
-    height: 240px;
   }
-  .slides {
+  .icon-btn .ico { font-size: 26px; line-height: 1.1; }
+  .icon-btn b {
+    position: absolute;
+    top: -4px;
+    right: 8px;
+    background: var(--red);
+    color: white;
+    font-size: 11px;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    padding: 0 4px;
     display: flex;
-    height: 100%;
-    transition: transform 0.5s;
+    align-items: center;
+    justify-content: center;
   }
+
+  /* 빠른 메뉴 */
+  .quick-nav { border-bottom: 1px solid var(--line); }
+  .quick-nav .wrap { display: flex; gap: 22px; overflow-x: auto; white-space: nowrap; }
+  .quick-nav button {
+    background: none;
+    border: none;
+    padding: 12px 0;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+  }
+  .quick-nav button.active { color: var(--blue); font-weight: bold; border-bottom-color: var(--blue); }
+
+  /* 배너 */
+  .slider { position: relative; overflow: hidden; height: 260px; }
+  .slides { display: flex; height: 100%; transition: transform 0.5s; }
   .slide {
     min-width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 10%;
-    color: white;
+    padding: 0 12%;
   }
-  .slide h2 { margin: 0 0 10px; font-size: 30px; }
-  .slide p { margin: 0; font-size: 17px; }
-  .slide:nth-child(1) { background: linear-gradient(120deg, #222 40%, #4a3a00); }
-  .slide:nth-child(2) { background: linear-gradient(120deg, #7a2b00, #d65a00); }
-  .slide:nth-child(3) { background: linear-gradient(120deg, #0d3b56, #1e6fa6); }
+  .slide .tag { font-size: 13px; font-weight: bold; margin-bottom: 8px; }
+  .slide h2 { margin: 0 0 10px; font-size: 32px; line-height: 1.3; }
+  .slide p { margin: 0; font-size: 16px; }
+  .slide:nth-child(1) { background: #e9f0ff; color: #12286b; }
+  .slide:nth-child(1) .tag { color: var(--blue); }
+  .slide:nth-child(2) { background: #fff0e8; color: #6b2412; }
+  .slide:nth-child(2) .tag { color: var(--red); }
+  .slide:nth-child(3) { background: #eaf7ec; color: #0f4d1b; }
+  .slide:nth-child(3) .tag { color: var(--green); }
   .slide-arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    background: rgba(0,0,0,0.35);
+    background: rgba(0,0,0,0.2);
     color: white;
     border: none;
-    font-size: 22px;
+    font-size: 24px;
     width: 40px;
-    height: 40px;
-    border-radius: 50%;
+    height: 56px;
     cursor: pointer;
   }
-  .slide-arrow.prev { left: 12px; }
-  .slide-arrow.next { right: 12px; }
-  .dots {
+  .slide-arrow.prev { left: 0; }
+  .slide-arrow.next { right: 0; }
+  .slide-count {
     position: absolute;
-    bottom: 12px;
-    width: 100%;
-    text-align: center;
+    right: 16px;
+    bottom: 14px;
+    background: rgba(0,0,0,0.35);
+    color: white;
+    font-size: 12px;
+    padding: 3px 10px;
+    border-radius: 12px;
   }
-  .dots span {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin: 0 4px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.5);
+
+  /* 동그라미 바로가기 */
+  .circles {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 22px 16px;
+    overflow-x: auto;
+  }
+  .circle {
+    background: none;
+    border: none;
     cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #333;
+    min-width: 70px;
   }
-  .dots span.on { background: #f5b400; }
+  .circle span {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    font-size: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .circle:hover span { border-color: var(--blue); }
 
-  /* 혜택 */
-  .perks {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 12px;
-    max-width: 1100px;
-    margin: 24px auto 0;
-    padding: 0 16px;
-  }
-  .perk {
-    background: white;
-    border-radius: 8px;
-    padding: 16px;
-    text-align: center;
-    font-size: 14px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-  }
-  .perk strong { display: block; font-size: 16px; margin: 4px 0; }
-
-  /* 상품 */
-  main {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 24px 16px 40px;
-  }
-  .list-head {
+  /* 상품 목록 */
+  main { padding-bottom: 50px; }
+  .list-title { font-size: 20px; font-weight: bold; margin: 8px 0 12px; }
+  .list-title small { font-size: 14px; color: var(--gray); font-weight: normal; margin-left: 6px; }
+  .sort-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 14px;
+    gap: 8px;
+    border-top: 2px solid var(--text);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 4px;
+    margin-bottom: 18px;
   }
-  .list-head h3 { margin: 0; font-size: 22px; }
-  .list-head select {
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+  .sort-tabs { display: flex; flex-wrap: wrap; }
+  .sort-tabs button {
+    background: none;
+    border: none;
+    color: var(--gray);
+    font-size: 13px;
+    padding: 2px 10px;
+    cursor: pointer;
+    border-left: 1px solid var(--line);
   }
+  .sort-tabs button:first-child { border-left: none; padding-left: 0; }
+  .sort-tabs button.active { color: var(--blue); font-weight: bold; }
+  .fast-filter { font-size: 13px; display: flex; align-items: center; gap: 5px; cursor: pointer; }
+  .fast-filter input { accent-color: var(--blue); width: 16px; height: 16px; }
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 28px 18px;
   }
-  .card {
-    background: white;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    transition: transform 0.15s;
-  }
-  .card:hover { transform: translateY(-3px); }
+  .card { cursor: pointer; }
   .card .img {
     position: relative;
-    background: #efeee8;
-    font-size: 64px;
-    text-align: center;
-    padding: 28px 0;
+    aspect-ratio: 1;
+    background: var(--bg);
+    font-size: 84px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
   }
-  .badge {
+  .card:hover .name { text-decoration: underline; }
+  .rank-badge {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    background: #d62828;
+    top: 0;
+    left: 0;
+    background: var(--blue);
     color: white;
     font-size: 12px;
     font-weight: bold;
-    padding: 3px 8px;
-    border-radius: 3px;
+    padding: 4px 8px;
   }
-  .badge.best { background: #f5b400; color: #222; left: auto; right: 10px; }
-
-  .card .info {
-    padding: 14px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-  .card .brand { font-size: 12px; color: #888; }
-  .card .name { font-weight: bold; margin: 4px 0 8px; font-size: 15px; }
-  .card .price { margin-top: auto; }
-  .card .price del { color: #999; font-size: 13px; margin-right: 6px; }
-  .card .price strong { font-size: 18px; }
-  .card .price .rate { color: #d62828; font-weight: bold; margin-right: 4px; }
-  .card .stock { font-size: 12px; color: #2a7d2a; margin-top: 4px; }
-  .card .stock.low { color: #d62828; }
-  .card button {
-    margin-top: 10px;
-    padding: 10px;
-    border: none;
-    border-radius: 4px;
-    background: #222;
-    color: #f5b400;
-    font-weight: bold;
+  .card .quick-cart {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    border: 1px solid var(--line);
+    background: white;
+    font-size: 18px;
     cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.12);
   }
-  .card button:hover { background: #000; }
-  .empty {
-    text-align: center;
-    padding: 60px 0;
-    color: #777;
+  .card .quick-cart:hover { border-color: var(--blue); }
+  .card .name {
+    font-size: 14px;
+    line-height: 1.4;
+    height: 39px;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    margin-bottom: 6px;
   }
+  .orig { font-size: 13px; color: var(--gray); min-height: 18px; }
+  .orig .rate { color: var(--red); font-weight: bold; margin-right: 4px; }
+  .orig del { color: #aaa; }
+  .now { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 2px 0 4px; }
+  .now strong { font-size: 18px; color: var(--red); }
+  .fast-badge {
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: bold;
+    font-style: italic;
+  }
+  .arrival { font-size: 12px; color: var(--green); font-weight: bold; }
+  .arrival.normal { color: var(--gray); font-weight: normal; }
+  .stars { display: flex; align-items: center; gap: 4px; margin-top: 5px; font-size: 12px; color: var(--gray); }
+  .star-bar { position: relative; display: inline-block; color: #ddd; letter-spacing: 1px; font-size: 13px; line-height: 1; }
+  .star-bar span { position: absolute; left: 0; top: 0; overflow: hidden; white-space: nowrap; color: #ff9600; }
+  .point { font-size: 12px; color: var(--gray); margin-top: 4px; }
+  .point::before { content: 'P'; display: inline-block; background: #ffb400; color: white; border-radius: 50%; width: 14px; height: 14px; font-size: 10px; text-align: center; line-height: 14px; margin-right: 4px; font-weight: bold; }
+  .low-stock { font-size: 12px; color: var(--red); margin-top: 3px; }
+  .empty { text-align: center; padding: 60px 0; color: var(--gray); grid-column: 1 / -1; line-height: 1.8; }
 
   /* 장바구니 */
-  .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.4);
-    display: none;
-  }
+  .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: none; z-index: 25; }
   .overlay.open { display: block; }
   .drawer {
     position: fixed;
     top: 0;
     right: 0;
-    width: 360px;
+    width: 380px;
     max-width: 100%;
     height: 100%;
     background: white;
@@ -283,75 +367,60 @@
     transition: transform 0.3s;
     display: flex;
     flex-direction: column;
-    z-index: 10;
+    z-index: 26;
   }
   .drawer.open { transform: translateX(0); }
   .drawer-head {
-    background: #222;
-    color: white;
     padding: 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 2px solid var(--text);
+    font-size: 18px;
   }
-  .drawer-head button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 22px;
-    cursor: pointer;
-  }
-  .cart-items { flex: 1; overflow-y: auto; padding: 8px 16px; }
-  .cart-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
-  }
-  .cart-item .emoji { font-size: 32px; }
-  .cart-item .meta { flex: 1; font-size: 14px; }
-  .cart-item .meta div:last-child { color: #555; margin-top: 2px; }
-  .qty button {
-    width: 26px;
-    height: 26px;
-    border: 1px solid #ccc;
-    background: white;
-    cursor: pointer;
-  }
-  .qty span { display: inline-block; width: 24px; text-align: center; }
-  .drawer-foot { padding: 16px; border-top: 2px solid #eee; }
+  .drawer-head button { background: none; border: none; font-size: 22px; cursor: pointer; color: var(--gray); }
+  .cart-items { flex: 1; overflow-y: auto; padding: 0 16px; }
+  .cart-item { display: flex; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .cart-item .emoji { font-size: 30px; width: 56px; height: 56px; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+  .cart-item .meta { flex: 1; font-size: 13px; }
+  .cart-item .meta .arrival { margin-top: 2px; }
+  .cart-item .meta strong { display: block; margin-top: 4px; font-size: 14px; }
+  .qty { display: inline-flex; border: 1px solid #ccc; }
+  .qty button { width: 28px; height: 28px; border: none; background: white; cursor: pointer; font-size: 15px; }
+  .qty span { width: 32px; display: flex; align-items: center; justify-content: center; border-left: 1px solid #ccc; border-right: 1px solid #ccc; }
+  .drawer-foot { padding: 16px; background: var(--bg); }
   .drawer-foot .row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 14px; }
   .drawer-foot .total { font-size: 18px; font-weight: bold; }
+  .drawer-foot .total span:last-child { color: var(--red); }
   .drawer-foot button {
     width: 100%;
     margin-top: 10px;
-    padding: 14px;
+    padding: 15px;
     border: none;
-    border-radius: 4px;
-    background: #f5b400;
+    background: var(--blue);
+    color: white;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
   }
+  .drawer-foot button:hover { background: var(--blue-dark); }
 
   /* 토스트 */
   .toast {
     position: fixed;
     bottom: 24px;
     left: 50%;
-    transform: translateX(-50%) translateY(80px);
-    background: #222;
+    transform: translateX(-50%) translateY(90px);
+    background: rgba(17,17,17,0.9);
     color: white;
     padding: 12px 20px;
-    border-radius: 6px;
+    border-radius: 4px;
     transition: transform 0.3s;
-    z-index: 20;
+    z-index: 40;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
-  /* 회원가입 */
-  .header-btns { display: flex; gap: 8px; }
+  /* 팝업 공통 */
   .modal {
     position: fixed;
     inset: 0;
@@ -363,141 +432,201 @@
     z-index: 30;
   }
   .modal.open { display: flex; }
-  .modal-box {
-    background: white;
-    border-radius: 10px;
-    width: 100%;
-    max-width: 380px;
-    padding: 28px 24px;
-    position: relative;
-    border-top: 6px solid #1e6fa6;
-    background: #f3f9fd;
-  }
-  .modal-box h3 { margin: 0 0 4px; font-size: 22px; color: #14507a; }
-  .modal-box .sub { color: #4b7a9c; font-size: 13px; margin-bottom: 20px; }
   .modal-close {
     position: absolute;
-    top: 12px;
-    right: 14px;
+    top: 10px;
+    right: 12px;
     background: none;
     border: none;
     font-size: 22px;
     cursor: pointer;
-    color: #888;
+    color: var(--gray);
+    z-index: 1;
   }
-  .modal-box label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #14507a; }
+
+  /* 상품 상세 */
+  .detail-box {
+    background: white;
+    width: 100%;
+    max-width: 820px;
+    max-height: 92vh;
+    overflow-y: auto;
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .detail-img {
+    position: relative;
+    flex: 1 1 300px;
+    background: var(--bg);
+    font-size: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+  }
+  .detail-info { flex: 1 1 340px; padding: 28px 24px; }
+  .detail-info .brand-link { color: var(--blue); font-size: 13px; }
+  .detail-info h2 { margin: 6px 0 8px; font-size: 21px; font-weight: normal; line-height: 1.4; }
+  .detail-info .stars { margin: 0 0 14px; font-size: 13px; }
+  .detail-info .stars .star-bar { font-size: 16px; }
+  .detail-info .price-box { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .detail-info .orig { font-size: 14px; }
+  .detail-info .now strong { font-size: 26px; }
+  .detail-info .ship { padding: 12px 0; border-bottom: 1px solid var(--line); line-height: 1.8; }
+  .detail-info .desc { font-size: 14px; line-height: 1.7; color: #444; margin: 14px 0; }
+  .detail-info table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 14px; border-top: 1px solid var(--line); }
+  .detail-info th, .detail-info td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--line); }
+  .detail-info th { width: 90px; background: var(--bg); color: #555; font-weight: normal; }
+  .detail-qty { display: flex; align-items: center; justify-content: space-between; margin: 16px 0 12px; }
+  .detail-qty .qty button { width: 34px; height: 34px; }
+  .detail-qty .qty span { width: 44px; font-weight: bold; }
+  .detail-total { font-size: 15px; }
+  .detail-total strong { font-size: 20px; color: var(--red); }
+  .detail-actions { display: flex; gap: 8px; }
+  .detail-actions button { flex: 1; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; }
+  .detail-actions .add { background: white; color: var(--blue); border: 1px solid var(--blue); }
+  .detail-actions .buy { background: var(--blue); color: white; border: 1px solid var(--blue); }
+  .detail-actions .buy:hover { background: var(--blue-dark); }
+
+  /* 회원가입 */
+  .modal-box {
+    background: #f3f7ff;
+    border-top: 6px solid var(--blue);
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 24px;
+    position: relative;
+  }
+  .modal-box h3 { margin: 0 0 4px; font-size: 22px; color: #12286b; }
+  .modal-box .sub { color: #4a5f99; font-size: 13px; margin-bottom: 20px; }
+  .modal-box label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #12286b; }
   .modal-box input {
     width: 100%;
     padding: 12px;
     font-size: 15px;
-    border: 1px solid #a9cbe3;
-    border-radius: 4px;
+    border: 1px solid #b3c6f5;
     margin-bottom: 14px;
     background: white;
   }
-  .modal-box input:focus { outline: none; border-color: #1e6fa6; box-shadow: 0 0 0 3px rgba(30,111,166,0.2); }
-  .modal-box input::placeholder { color: #8aa9c0; }
-  .modal-box input.error { border-color: #d62828; background: #fff5f5; }
-  .modal-box .hint { font-size: 12px; color: #4b7a9c; margin: -8px 0 14px; }
+  .modal-box input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(52,106,255,0.2); }
+  .modal-box input::placeholder { color: #93a3c9; }
+  .modal-box input.error { border-color: var(--red); background: #fff5f5; }
+  .modal-box .hint { font-size: 12px; color: #4a5f99; margin: -8px 0 14px; }
   .modal-box .submit {
     width: 100%;
     padding: 14px;
     border: none;
-    border-radius: 4px;
-    background: #1e6fa6;
+    background: var(--blue);
     color: white;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
   }
-  .modal-box .submit:hover { background: #14507a; }
-  .msg {
-    display: none;
-    margin-top: 14px;
-    padding: 12px;
-    border-radius: 4px;
-    font-size: 14px;
-    line-height: 1.6;
-  }
+  .modal-box .submit:hover { background: var(--blue-dark); }
+  .msg { display: none; margin-top: 14px; padding: 12px; font-size: 14px; line-height: 1.6; }
   .msg.fail { display: block; background: #fdecec; color: #b01e1e; }
+  .switch { margin-top: 16px; text-align: center; font-size: 13px; color: #4a5f99; }
+  .switch a { color: var(--blue); font-weight: bold; cursor: pointer; text-decoration: underline; }
   .msg.ok { display: block; background: #eaf6ea; color: #1f6e1f; font-weight: bold; text-align: center; font-size: 16px; }
 
   /* 하단 */
-  footer {
-    background: #1c1c1c;
-    color: #aaa;
-    font-size: 13px;
-    padding: 28px 16px;
-    text-align: center;
-    line-height: 1.8;
-  }
-  footer strong { color: #f5b400; font-size: 16px; }
+  footer { border-top: 1px solid var(--line); background: var(--bg); color: #666; font-size: 12px; }
+  footer .links { border-bottom: 1px solid var(--line); background: white; }
+  footer .links .wrap { display: flex; flex-wrap: wrap; gap: 18px; padding-top: 14px; padding-bottom: 14px; }
+  footer .links a { color: #333; text-decoration: none; }
+  footer .info .wrap { display: flex; flex-wrap: wrap; gap: 30px; padding-top: 22px; padding-bottom: 30px; line-height: 1.9; }
+  footer .info strong { color: var(--text); font-size: 15px; }
+  footer .cs { font-size: 13px; }
+  footer .cs b { display: block; font-size: 20px; color: var(--text); }
 
-  @media (max-width: 600px) {
-    .logo { font-size: 22px; }
-    .slide h2 { font-size: 22px; }
+  @media (max-width: 700px) {
+    .util { display: none; }
+    header .wrap { flex-wrap: wrap; gap: 10px; padding-top: 10px; padding-bottom: 10px; }
+    .cat-btn { width: 44px; height: 44px; font-size: 0; }
+    .cat-btn .bars { font-size: 20px; }
+    .cat-menu { top: 44px; }
+    .logo { font-size: 21px; flex: 1; }
+    .search { order: 5; flex-basis: 100%; height: 40px; }
+    .search select { display: none; }
+    .icon-btn { width: 50px; font-size: 11px; white-space: nowrap; }
+    .icon-btn .ico { font-size: 22px; }
     .slider { height: 200px; }
-    .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-    .card .img { font-size: 48px; padding: 18px 0; }
+    .slide { padding: 0 10%; }
+    .slide h2 { font-size: 22px; }
+    .slide p { font-size: 14px; }
+    .grid { grid-template-columns: repeat(2, 1fr); gap: 22px 10px; }
+    .card .img { font-size: 60px; }
+    .detail-img { font-size: 100px; min-height: 200px; }
   }
 </style>
 </head>
 <body>
 
-<div class="topbar">🔧 5만원 이상 구매 시 무료배송 · 평일 오후 3시 이전 주문 당일 출고</div>
+<div class="util">
+  <div class="wrap">
+    <div><a>⭐ 즐겨찾기</a><a>🏪 단골 사장님 전용</a></div>
+    <div class="right"><span id="utilAuth"></span><a>고객센터 010-1234-5678</a></div>
+  </div>
+</div>
 
 <header>
-  <a class="logo" href="#">🛠️ 인수의 <span>공구가게</span></a>
-  <form class="search" onsubmit="doSearch(event)">
-    <input id="searchInput" type="text" placeholder="드릴, 렌치, 줄자... 공구를 검색하세요">
-    <button type="submit">검색</button>
-  </form>
-  <div class="header-btns">
-    <button class="cart-btn" onclick="openSignup()">👤 회원가입</button>
-    <button class="cart-btn" onclick="toggleCart(true)">🛒 장바구니<b id="cartCount">0</b></button>
+  <div class="wrap">
+    <div class="cat-wrap">
+      <button class="cat-btn" onclick="toggleCatMenu(event)"><span class="bars">☰</span>카테고리</button>
+      <div class="cat-menu" id="catMenu" onclick="event.stopPropagation()"></div>
+    </div>
+    <a class="logo" href="#" onclick="selectCat('전체'); return false;">
+      <span class="c1">인</span><span class="c2">수</span><span class="c3">공</span><span class="c4">구</span><span class="c5">가게</span>
+    </a>
+    <form class="search" onsubmit="doSearch(event)">
+      <select id="searchCat"></select>
+      <input id="searchInput" type="text" placeholder="찾고 싶은 공구를 검색해보세요!">
+      <button type="submit" aria-label="검색">🔍</button>
+    </form>
+    <div class="icon-btns">
+      <span id="headerAuth" class="icon-btns"></span>
+      <button class="icon-btn" onclick="toggleCart(true)"><span class="ico">🛒</span>장바구니<b id="cartCount">0</b></button>
+    </div>
   </div>
 </header>
 
-<nav id="categoryNav"></nav>
+<nav class="quick-nav">
+  <div class="wrap" id="quickNav"></div>
+</nav>
 
 <div class="slider">
   <div class="slides" id="slides">
     <div class="slide">
-      <h2>현장에서 믿고 쓰는 공구, 인수의 공구가게</h2>
+      <div class="tag">⚡ 빠른배송</div>
+      <h2>오후 3시 전 주문하면<br>내일 도착!</h2>
       <p>전동공구부터 수공구, 안전용품까지 한 곳에서</p>
     </div>
     <div class="slide">
-      <h2>🔥 전동공구 가을 특가전 최대 30% 할인</h2>
+      <div class="tag">🔥 가을 특가전</div>
+      <h2>전동공구 최대 30% 할인</h2>
       <p>충전 드릴 · 그라인더 · 임팩 드라이버 한정 수량</p>
     </div>
     <div class="slide">
-      <h2>첫 구매 고객 5,000원 할인 쿠폰 증정</h2>
+      <div class="tag">🎁 신규 회원 혜택</div>
+      <h2>첫 구매 5,000원 할인 쿠폰</h2>
       <p>회원가입만 해도 바로 사용 가능!</p>
     </div>
   </div>
-  <button class="slide-arrow prev" onclick="moveSlide(-1)">‹</button>
-  <button class="slide-arrow next" onclick="moveSlide(1)">›</button>
-  <div class="dots" id="dots"></div>
+  <button class="slide-arrow prev" onclick="moveSlide(-1)" aria-label="이전">‹</button>
+  <button class="slide-arrow next" onclick="moveSlide(1)" aria-label="다음">›</button>
+  <div class="slide-count" id="slideCount"></div>
 </div>
 
-<section class="perks">
-  <div class="perk">🚚<strong>빠른 배송</strong>오후 3시 전 주문 당일 출고</div>
-  <div class="perk">🛡️<strong>정품 보증</strong>공식 대리점 정품만 취급</div>
-  <div class="perk">🔁<strong>무료 교환</strong>초기 불량 7일 내 교환</div>
-  <div class="perk">📞<strong>공구 상담</strong>010-1234-5678</div>
-</section>
+<div class="wrap">
+  <div class="circles" id="circles"></div>
+</div>
 
-
-<main>
-  <div class="list-head">
-    <h3 id="listTitle">전체 상품</h3>
-    <select id="sortSelect" onchange="renderProducts()">
-      <option value="default">추천순</option>
-      <option value="sold">판매량순</option>
-      <option value="low">낮은 가격순</option>
-      <option value="high">높은 가격순</option>
-      <option value="discount">할인율순</option>
-    </select>
+<main class="wrap">
+  <div class="list-title" id="listTitle"></div>
+  <div class="sort-bar">
+    <div class="sort-tabs" id="sortTabs"></div>
+    <label class="fast-filter"><input type="checkbox" id="fastOnly" onchange="renderProducts()"> <span class="fast-badge">⚡빠른배송</span>만 보기</label>
   </div>
   <div class="grid" id="productGrid"></div>
 </main>
@@ -505,19 +634,38 @@
 <div class="overlay" id="overlay" onclick="toggleCart(false)"></div>
 <aside class="drawer" id="drawer">
   <div class="drawer-head">
-    <strong>🛒 장바구니</strong>
-    <button onclick="toggleCart(false)">✕</button>
+    <strong>장바구니</strong>
+    <button onclick="toggleCart(false)" aria-label="닫기">✕</button>
   </div>
   <div class="cart-items" id="cartItems"></div>
   <div class="drawer-foot">
-    <div class="row"><span>상품 금액</span><span id="subtotal">0원</span></div>
-    <div class="row"><span>배송비</span><span id="shipping">0원</span></div>
-    <div class="row total"><span>결제 금액</span><span id="total">0원</span></div>
-    <button onclick="checkout()">주문하기</button>
+    <div class="row"><span>총 상품가격</span><span id="subtotal">0원</span></div>
+    <div class="row"><span>총 배송비</span><span id="shipping">0원</span></div>
+    <div class="row total"><span>총 주문금액</span><span id="total">0원</span></div>
+    <button onclick="checkout()">구매하기</button>
   </div>
 </aside>
 
 <div class="toast" id="toast"></div>
+
+<div class="modal" id="detailModal" onclick="if (event.target === this) closeDetail()">
+  <div class="detail-box" id="detailBox"></div>
+</div>
+
+<div class="modal" id="loginModal" onclick="if (event.target === this) closeLogin()">
+  <form class="modal-box" onsubmit="login(event)" novalidate>
+    <button type="button" class="modal-close" onclick="closeLogin()">✕</button>
+    <h3>🔑 로그인</h3>
+    <div class="sub">인수의 공구가게에 오신 걸 환영해요</div>
+    <label for="loginEmail">이메일</label>
+    <input id="loginEmail" type="email" placeholder="가입한 이메일을 입력하세요" autocomplete="email">
+    <label for="loginPw">비밀번호</label>
+    <input id="loginPw" type="password" placeholder="비밀번호를 입력하세요" autocomplete="current-password">
+    <button type="submit" class="submit">로그인</button>
+    <div class="msg" id="loginMsg"></div>
+    <div class="switch">아직 회원이 아니신가요? <a onclick="closeLogin(); openSignup()">회원가입</a></div>
+  </form>
+</div>
 
 <div class="modal" id="signupModal" onclick="if (event.target === this) closeSignup()">
   <form class="modal-box" onsubmit="signup(event)" novalidate>
@@ -531,43 +679,71 @@
     <div class="hint">8자 이상, 영문과 숫자를 모두 포함해 주세요</div>
     <button type="submit" class="submit">주주되기</button>
     <div class="msg" id="signupMsg"></div>
+    <div class="switch">이미 회원이신가요? <a onclick="closeSignup(); openLogin()">로그인</a></div>
   </form>
 </div>
 
 <footer>
-  <strong>🛠️ 인수의 공구가게</strong><br>
-  대표: 인수 · 주소: 서울 양천구 안양천 다리아래 · 고객센터: 010-1234-5678<br>
-  영업시간: 평일 08:00 ~ 19:00 / 토요일 08:00 ~ 15:00 (일요일·공휴일 휴무)<br>
-  © 2026 인수의 공구가게. All rights reserved.
+  <div class="links">
+    <div class="wrap">
+      <a>회사소개</a><a>이용약관</a><a><b>개인정보처리방침</b></a><a>공구 상담</a><a>대량 구매 문의</a>
+    </div>
+  </div>
+  <div class="info">
+    <div class="wrap">
+      <div>
+        <strong>🛠️ 인수의 공구가게</strong><br>
+        대표: 인수 · 주소: 서울 양천구 안양천 다리아래<br>
+        영업시간: 평일 08:00 ~ 19:00 / 토요일 08:00 ~ 15:00 (일요일·공휴일 휴무)<br>
+        © 2026 인수의 공구가게. All rights reserved.
+      </div>
+      <div class="cs">
+        고객센터<b>010-1234-5678</b>
+        평일 08:00 ~ 19:00
+      </div>
+    </div>
+  </div>
 </footer>
 
 <script>
   const products = [
-    { id: 1,  cat: '전동공구', brand: '파워맥스', name: '18V 충전 드릴 드라이버 세트', emoji: '🔩', price: 189000, sale: 139000, stock: 12, sold: 342 },
-    { id: 2,  cat: '전동공구', brand: '파워맥스', name: '4인치 앵글 그라인더', emoji: '⚙️', price: 79000, sale: 59000, stock: 8, sold: 188 },
-    { id: 3,  cat: '전동공구', brand: '강철공업', name: '충전 임팩 드라이버 20V', emoji: '🔋', price: 159000, sale: 129000, stock: 3, sold: 156 },
-    { id: 4,  cat: '전동공구', brand: '강철공업', name: '원형톱 7인치', emoji: '🪚', price: 135000, sale: 135000, stock: 6, sold: 74 },
-    { id: 5,  cat: '수공구', brand: '대한공구', name: '양구 스패너 8종 세트', emoji: '🔧', price: 42000, sale: 34000, stock: 25, sold: 265 },
-    { id: 6,  cat: '수공구', brand: '대한공구', name: '장도리 망치 16oz', emoji: '🔨', price: 18000, sale: 15000, stock: 40, sold: 210 },
-    { id: 7,  cat: '수공구', brand: '정밀툴', name: '정밀 드라이버 32종 세트', emoji: '🪛', price: 25000, sale: 19900, stock: 18, sold: 231 },
-    { id: 8,  cat: '수공구', brand: '정밀툴', name: '롱노즈 플라이어 6인치', emoji: '🗜️', price: 12000, sale: 12000, stock: 30, sold: 97 },
-    { id: 9,  cat: '측정공구', brand: '정밀툴', name: '자동 줄자 5.5m', emoji: '📏', price: 9900, sale: 7900, stock: 50, sold: 518 },
-    { id: 10, cat: '측정공구', brand: '레이저원', name: '레이저 거리 측정기 40m', emoji: '📐', price: 69000, sale: 54000, stock: 4, sold: 143 },
-    { id: 11, cat: '측정공구', brand: '레이저원', name: '디지털 수평계 600mm', emoji: '📊', price: 39000, sale: 39000, stock: 9, sold: 66 },
-    { id: 12, cat: '안전용품', brand: '세이프가드', name: '안전모 (KCs 인증)', emoji: '⛑️', price: 15000, sale: 12000, stock: 60, sold: 289 },
-    { id: 13, cat: '안전용품', brand: '세이프가드', name: '코팅 작업장갑 10켤레', emoji: '🧤', price: 8000, sale: 6500, stock: 100, sold: 604 },
-    { id: 14, cat: '안전용품', brand: '세이프가드', name: '보안경 투명', emoji: '🥽', price: 6000, sale: 6000, stock: 45, sold: 175 },
-    { id: 15, cat: '철물·부자재', brand: '대한철물', name: '피스·나사 혼합 500개입', emoji: '🔩', price: 14000, sale: 11000, stock: 35, sold: 322 },
-    { id: 16, cat: '철물·부자재', brand: '대한철물', name: '공구함 3단 철제', emoji: '🧰', price: 45000, sale: 36000, stock: 7, sold: 247 },
-    { id: 17, cat: '철물·부자재', brand: '대한철물', name: '접이식 알루미늄 사다리 4단', emoji: '🪜', price: 89000, sale: 72000, stock: 2, sold: 58 },
-    { id: 18, cat: '철물·부자재', brand: '대한철물', name: '와이어 케이블 타이 200개', emoji: '🧷', price: 5000, sale: 5000, stock: 80, sold: 401 },
+    { id: 1,  cat: '전동공구', brand: '파워맥스', name: '18V 충전 드릴 드라이버 세트', emoji: '🔩', price: 189000, sale: 139000, stock: 12, sold: 342, rating: 4.8, reviews: 1284, fast: true },
+    { id: 2,  cat: '전동공구', brand: '파워맥스', name: '4인치 앵글 그라인더', emoji: '⚙️', price: 79000, sale: 59000, stock: 8, sold: 188, rating: 4.6, reviews: 532, fast: true },
+    { id: 3,  cat: '전동공구', brand: '강철공업', name: '충전 임팩 드라이버 20V', emoji: '🔋', price: 159000, sale: 129000, stock: 3, sold: 156, rating: 4.7, reviews: 418, fast: true },
+    { id: 4,  cat: '전동공구', brand: '강철공업', name: '원형톱 7인치', emoji: '🪚', price: 135000, sale: 135000, stock: 6, sold: 74, rating: 4.4, reviews: 97, fast: false },
+    { id: 5,  cat: '수공구', brand: '대한공구', name: '양구 스패너 8종 세트', emoji: '🔧', price: 42000, sale: 34000, stock: 25, sold: 265, rating: 4.7, reviews: 806, fast: true },
+    { id: 6,  cat: '수공구', brand: '대한공구', name: '장도리 망치 16oz', emoji: '🔨', price: 18000, sale: 15000, stock: 40, sold: 210, rating: 4.5, reviews: 641, fast: true },
+    { id: 7,  cat: '수공구', brand: '정밀툴', name: '정밀 드라이버 32종 세트', emoji: '🪛', price: 25000, sale: 19900, stock: 18, sold: 231, rating: 4.6, reviews: 1092, fast: true },
+    { id: 8,  cat: '수공구', brand: '정밀툴', name: '롱노즈 플라이어 6인치', emoji: '🗜️', price: 12000, sale: 12000, stock: 30, sold: 97, rating: 4.3, reviews: 158, fast: false },
+    { id: 9,  cat: '측정공구', brand: '정밀툴', name: '자동 줄자 5.5m', emoji: '📏', price: 9900, sale: 7900, stock: 50, sold: 518, rating: 4.8, reviews: 2315, fast: true },
+    { id: 10, cat: '측정공구', brand: '레이저원', name: '레이저 거리 측정기 40m', emoji: '📐', price: 69000, sale: 54000, stock: 4, sold: 143, rating: 4.5, reviews: 287, fast: true },
+    { id: 11, cat: '측정공구', brand: '레이저원', name: '디지털 수평계 600mm', emoji: '📊', price: 39000, sale: 39000, stock: 9, sold: 66, rating: 4.2, reviews: 74, fast: false },
+    { id: 12, cat: '안전용품', brand: '세이프가드', name: '안전모 (KCs 인증)', emoji: '⛑️', price: 15000, sale: 12000, stock: 60, sold: 289, rating: 4.6, reviews: 455, fast: true },
+    { id: 13, cat: '안전용품', brand: '세이프가드', name: '코팅 작업장갑 10켤레', emoji: '🧤', price: 8000, sale: 6500, stock: 100, sold: 604, rating: 4.9, reviews: 3870, fast: true },
+    { id: 14, cat: '안전용품', brand: '세이프가드', name: '보안경 투명', emoji: '🥽', price: 6000, sale: 6000, stock: 45, sold: 175, rating: 4.4, reviews: 233, fast: false },
+    { id: 15, cat: '철물·부자재', brand: '대한철물', name: '피스·나사 혼합 500개입', emoji: '🔩', price: 14000, sale: 11000, stock: 35, sold: 322, rating: 4.7, reviews: 967, fast: true },
+    { id: 16, cat: '철물·부자재', brand: '대한철물', name: '공구함 3단 철제', emoji: '🧰', price: 45000, sale: 36000, stock: 7, sold: 247, rating: 4.6, reviews: 512, fast: true },
+    { id: 17, cat: '철물·부자재', brand: '대한철물', name: '접이식 알루미늄 사다리 4단', emoji: '🪜', price: 89000, sale: 72000, stock: 2, sold: 58, rating: 4.5, reviews: 88, fast: false },
+    { id: 18, cat: '철물·부자재', brand: '대한철물', name: '와이어 케이블 타이 200개', emoji: '🧷', price: 5000, sale: 5000, stock: 80, sold: 401, rating: 4.7, reviews: 1456, fast: true },
   ];
 
-  const categories = ['전체', '전동공구', '수공구', '측정공구', '안전용품', '철물·부자재', '특가', '인기'];
+  const mainCats = ['전동공구', '수공구', '측정공구', '안전용품', '철물·부자재'];
+  const catIcons = { '인기': '🏆', '특가': '🔥', '빠른배송': '⚡', '전동공구': '🔋', '수공구': '🔧', '측정공구': '📏', '안전용품': '⛑️', '철물·부자재': '🔩' };
+  const quickCats = ['전체', '인기', '특가', '빠른배송', ...mainCats];
+  const sorts = [
+    { key: 'rank', label: '인기순' },
+    { key: 'low', label: '낮은가격순' },
+    { key: 'high', label: '높은가격순' },
+    { key: 'sold', label: '판매량순' },
+    { key: 'review', label: '리뷰 많은순' },
+    { key: 'discount', label: '할인율순' },
+  ];
   const FREE_SHIPPING = 50000;
   const SHIPPING_FEE = 3000;
+  const POINT_RATE = 0.05;
 
   let currentCat = '전체';
+  let currentSort = 'rank';
   let keyword = '';
   let cart = loadCart();
 
@@ -581,6 +757,24 @@
   const BEST_COUNT = 5;
   const isBest = p => overallRank[p.id] <= BEST_COUNT;
 
+  // 도착 예정일: 빠른배송은 오후 3시 전 주문 시 다음 날, 일반은 2일 더 (일요일 제외)
+  const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
+  function arrival(p) {
+    const now = new Date();
+    let add = (now.getHours() < 15 ? 1 : 2) + (p.fast ? 0 : 2);
+    const d = new Date(now);
+    d.setDate(d.getDate() + add);
+    if (d.getDay() === 0) { d.setDate(d.getDate() + 1); add++; }
+    const day = DAYS[d.getDay()];
+    const when = add === 1 ? `내일(${day})` : add === 2 ? `모레(${day})` : `${d.getMonth() + 1}/${d.getDate()}(${day})`;
+    return p.fast
+      ? `<span class="arrival">${when} 도착 보장</span>`
+      : `<span class="arrival normal">${when} 도착 예정</span>`;
+  }
+  function stars(p) {
+    return `<span class="star-bar">★★★★★<span style="width:${p.rating / 5 * 100}%">★★★★★</span></span>`;
+  }
+
   function loadCart() {
     try { return JSON.parse(localStorage.getItem('insu-tool-cart')) || {}; }
     catch (e) { return {}; }
@@ -590,25 +784,50 @@
   }
 
   // 카테고리 메뉴
-  function renderNav() {
-    document.getElementById('categoryNav').innerHTML = categories.map(c =>
-      `<button class="${c === currentCat ? 'active' : ''}" onclick="selectCat('${c}')">${c}</button>`
+  function renderMenus() {
+    document.getElementById('quickNav').innerHTML = quickCats.map(c =>
+      `<button class="${c === currentCat ? 'active' : ''}" onclick="selectCat('${c}')">${c === '빠른배송' ? '⚡빠른배송' : c}</button>`
+    ).join('');
+    document.getElementById('catMenu').innerHTML = ['전체', ...mainCats].map(c =>
+      `<div onclick="selectCat('${c}')">${catIcons[c] || '📦'} ${c}</div>`
+    ).join('');
+    document.getElementById('circles').innerHTML = quickCats.slice(1).map(c =>
+      `<button class="circle" onclick="selectCat('${c}')"><span>${catIcons[c]}</span>${c}</button>`
+    ).join('');
+    document.getElementById('searchCat').innerHTML = ['전체', ...mainCats].map(c =>
+      `<option value="${c}">${c}</option>`
+    ).join('');
+    document.getElementById('sortTabs').innerHTML = sorts.map(s =>
+      `<button class="${s.key === currentSort ? 'active' : ''}" onclick="selectSort('${s.key}')">${s.label}</button>`
     ).join('');
   }
+  function toggleCatMenu(e) {
+    e.stopPropagation();
+    document.getElementById('catMenu').classList.toggle('open');
+  }
+  document.addEventListener('click', () => document.getElementById('catMenu').classList.remove('open'));
+
   function selectCat(c) {
     currentCat = c;
     keyword = '';
     document.getElementById('searchInput').value = '';
-    renderNav();
+    document.getElementById('catMenu').classList.remove('open');
+    renderMenus();
     renderProducts();
     document.querySelector('main').scrollIntoView({ behavior: 'smooth' });
+  }
+  function selectSort(key) {
+    currentSort = key;
+    renderMenus();
+    renderProducts();
   }
 
   function doSearch(e) {
     e.preventDefault();
     keyword = document.getElementById('searchInput').value.trim();
-    currentCat = '전체';
-    renderNav();
+    currentCat = document.getElementById('searchCat').value;
+    renderMenus();
+    document.getElementById('searchCat').value = currentCat;
     renderProducts();
     document.querySelector('main').scrollIntoView({ behavior: 'smooth' });
   }
@@ -618,46 +837,45 @@
     let list = products.filter(p => {
       if (currentCat === '특가') return p.sale < p.price;
       if (currentCat === '인기') return isBest(p);
+      if (currentCat === '빠른배송') return p.fast;
       return currentCat === '전체' || p.cat === currentCat;
     });
+    if (document.getElementById('fastOnly').checked) list = list.filter(p => p.fast);
     if (keyword) {
       const k = keyword.toLowerCase();
       list = list.filter(p => (p.name + p.brand + p.cat).toLowerCase().includes(k));
     }
 
-    const sort = document.getElementById('sortSelect').value;
-    if (sort === 'low') list.sort((a, b) => a.sale - b.sale);
-    if (sort === 'high') list.sort((a, b) => b.sale - a.sale);
-    if (sort === 'discount') list.sort((a, b) => discount(b) - discount(a));
-    if (sort === 'sold' || (sort === 'default' && currentCat === '인기')) list = bySold(list);
+    if (currentSort === 'rank' || currentSort === 'sold') list = bySold(list);
+    if (currentSort === 'low') list.sort((a, b) => a.sale - b.sale);
+    if (currentSort === 'high') list.sort((a, b) => b.sale - a.sale);
+    if (currentSort === 'review') list.sort((a, b) => b.reviews - a.reviews);
+    if (currentSort === 'discount') list.sort((a, b) => discount(b) - discount(a));
 
-    document.getElementById('listTitle').textContent =
-      (keyword ? `'${keyword}' 검색 결과` : currentCat === '전체' ? '전체 상품' : currentCat) + ` (${list.length})`;
+    const title = keyword ? `'${keyword}' 검색 결과` : currentCat === '전체' ? '전체 상품' : currentCat;
+    document.getElementById('listTitle').innerHTML = `${title}<small>${list.length}개 상품</small>`;
 
     const grid = document.getElementById('productGrid');
     if (!list.length) {
-      grid.innerHTML = '<div class="empty" style="grid-column:1/-1">찾는 상품이 없어요 🔍<br>다른 검색어를 입력해 보세요.</div>';
+      grid.innerHTML = '<div class="empty">🔍 찾는 상품이 없어요<br>다른 검색어를 입력해 보세요.</div>';
       return;
     }
     grid.innerHTML = list.map(p => {
       const rate = discount(p);
-      const badge = (rate > 0 ? `<span class="badge">${rate}% 할인</span>` : '')
-                  + (isBest(p) ? `<span class="badge best">인기 ${overallRank[p.id]}위</span>` : '');
       return `
-        <div class="card">
-          <div class="img">${badge}${p.emoji}</div>
-          <div class="info">
-            <div class="brand">${p.brand} · ${p.cat}</div>
-            <div class="name">${p.name}</div>
-            <div class="price">
-              ${rate > 0 ? `<del>${won(p.price)}</del><br><span class="rate">${rate}%</span>` : ''}
-              <strong>${won(p.sale)}</strong>
-            </div>
-            <div class="stock ${p.stock <= 5 ? 'low' : ''}">
-              ${p.stock <= 5 ? `⚠️ 품절 임박 (${p.stock}개 남음)` : '✔ 재고 있음'}
-            </div>
-            <button onclick="addToCart(${p.id})">장바구니 담기</button>
+        <div class="card" onclick="openDetail(${p.id})">
+          <div class="img">
+            ${isBest(p) ? `<span class="rank-badge">인기 ${overallRank[p.id]}위</span>` : ''}
+            ${p.emoji}
+            <button class="quick-cart" title="장바구니 담기" onclick="event.stopPropagation(); addToCart(${p.id})">🛒</button>
           </div>
+          <div class="name">${p.name}</div>
+          <div class="orig">${rate > 0 ? `<span class="rate">${rate}%</span><del>${won(p.price)}</del>` : ''}</div>
+          <div class="now"><strong>${won(p.sale)}</strong>${p.fast ? '<span class="fast-badge">⚡빠른배송</span>' : ''}</div>
+          ${arrival(p)}
+          <div class="stars">${stars(p)} (${p.reviews.toLocaleString('ko-KR')})</div>
+          <div class="point">최대 ${won(Math.floor(p.sale * POINT_RATE))} 적립</div>
+          ${p.stock <= 5 ? `<div class="low-stock">품절임박 · ${p.stock}개 남음</div>` : ''}
         </div>`;
     }).join('');
   }
@@ -691,7 +909,7 @@
 
     const box = document.getElementById('cartItems');
     if (!ids.length) {
-      box.innerHTML = '<div class="empty">장바구니가 비어 있어요 🧰</div>';
+      box.innerHTML = '<div class="empty">장바구니에 담은 상품이 없어요 🧰</div>';
     } else {
       box.innerHTML = ids.map(id => {
         const p = products.find(x => x.id === id);
@@ -700,7 +918,8 @@
             <div class="emoji">${p.emoji}</div>
             <div class="meta">
               <div>${p.name}</div>
-              <div>${won(p.sale * cart[id])}</div>
+              ${arrival(p)}
+              <strong>${won(p.sale * cart[id])}</strong>
             </div>
             <div class="qty">
               <button onclick="changeQty(${id}, -1)">−</button>
@@ -732,8 +951,106 @@
     toggleCart(false);
   }
 
+  // 상품 상세
+  const details = {
+    1:  { desc: '가볍고 힘 좋은 18V 충전 드릴. 목공·철재 구멍 뚫기와 나사 체결을 한 대로 해결합니다.', specs: { '전압': '18V', '토크': '최대 55Nm', '구성': '본체, 배터리 2개, 충전기, 비트 세트, 케이스', '보증': '1년' } },
+    2:  { desc: '철재 절단, 용접부 연마, 녹 제거에 쓰는 4인치 앵글 그라인더입니다.', specs: { '소비전력': '750W', '디스크': '100mm', '회전수': '12,000rpm', '보증': '1년' } },
+    3:  { desc: '긴 피스도 거뜬한 강력한 타격력의 20V 임팩 드라이버.', specs: { '전압': '20V', '토크': '최대 180Nm', '구성': '본체, 배터리 1개, 충전기', '보증': '1년' } },
+    4:  { desc: '합판·각재 직선 절단용 7인치 원형톱. 각도 조절 가능.', specs: { '소비전력': '1,400W', '톱날': '185mm', '절단 깊이': '최대 63mm', '보증': '1년' } },
+    5:  { desc: '자주 쓰는 규격만 모은 양구 스패너 8종 세트. 크롬바나듐강으로 튼튼합니다.', specs: { '규격': '8~19mm (8종)', '재질': '크롬바나듐강', '구성': '스패너 8개, 거치대' } },
+    6:  { desc: '못 박기와 못 뽑기를 한 번에. 손에 잘 맞는 고무 손잡이 장도리.', specs: { '무게': '16oz (약 450g)', '손잡이': '미끄럼 방지 고무', '전체 길이': '330mm' } },
+    7:  { desc: '전자기기·안경·시계 수리에 딱 맞는 정밀 드라이버 32종 세트.', specs: { '구성': '비트 30종, 핸들, 연장대', '재질': 'S2 공구강', '케이스': '자석 보관함' } },
+    8:  { desc: '좁은 곳 작업과 전선 작업에 편한 6인치 롱노즈 플라이어.', specs: { '길이': '6인치 (150mm)', '기능': '집기, 구부리기, 전선 절단', '손잡이': '절연 그립' } },
+    9:  { desc: '현장 필수품! 자동 잠금 기능이 있는 5.5m 줄자.', specs: { '길이': '5.5m', '폭': '25mm', '기능': '자동 잠금, 벨트 클립' } },
+    10: { desc: '버튼 한 번으로 최대 40m 거리를 정확하게 측정합니다.', specs: { '측정 범위': '0.05 ~ 40m', '정확도': '±2mm', '기능': '거리, 면적, 부피 계산', '전원': 'AAA 건전지 2개' } },
+    11: { desc: '각도를 숫자로 보여주는 디지털 수평계. 자석 부착 가능.', specs: { '길이': '600mm', '표시': '디지털 각도 (0.1°)', '기능': '자석 부착, 수평·수직 측정' } },
+    12: { desc: 'KCs 인증을 받은 현장용 안전모. 크기 조절 가능한 내피.', specs: { '인증': 'KCs 안전인증', '재질': 'ABS', '크기': '머리둘레 조절식' } },
+    13: { desc: '손에 착 붙는 코팅 장갑 10켤레 묶음. 미끄럼 방지로 작업이 편합니다.', specs: { '수량': '10켤레', '코팅': '손바닥 NBR 코팅', '사이즈': '프리 (L)' } },
+    14: { desc: '파편과 먼지로부터 눈을 보호하는 투명 보안경. 김서림 방지.', specs: { '렌즈': '폴리카보네이트', '기능': '김서림 방지, 자외선 차단', '안경 위 착용': '가능' } },
+    15: { desc: '집수리에 자주 쓰는 피스와 나사를 규격별로 담은 500개 세트.', specs: { '수량': '약 500개', '종류': '목재용·철판용 피스, 볼트·너트', '보관': '칸막이 케이스' } },
+    16: { desc: '공구를 한 번에 정리하는 3단 철제 공구함. 펼치면 3단으로 열립니다.', specs: { '크기': '440 × 200 × 210mm', '재질': '철제 분체도장', '구조': '3단 펼침식' } },
+    17: { desc: '가볍고 튼튼한 알루미늄 접이식 사다리. 접으면 보관이 쉽습니다.', specs: { '단수': '4단', '높이': '펼침 시 약 1.1m', '최대 하중': '100kg', '무게': '4.2kg' } },
+    18: { desc: '전선 정리와 고정에 쓰는 케이블 타이 200개입.', specs: { '수량': '200개', '길이': '200mm', '재질': '나일론 66' } },
+  };
+  let detailId = null;
+  let detailQty = 1;
+  function openDetail(id) {
+    detailId = id;
+    detailQty = 1;
+    renderDetail();
+    document.getElementById('detailModal').classList.add('open');
+  }
+  function closeDetail() {
+    document.getElementById('detailModal').classList.remove('open');
+  }
+  function changeDetailQty(d) {
+    const p = products.find(x => x.id === detailId);
+    const next = detailQty + d;
+    if (next < 1) return;
+    if (next > p.stock) { showToast(`재고가 ${p.stock}개뿐이에요`); return; }
+    detailQty = next;
+    renderDetail();
+  }
+  function renderDetail() {
+    const p = products.find(x => x.id === detailId);
+    const d = details[p.id];
+    const rate = discount(p);
+    const specRows = Object.entries(d.specs).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+    document.getElementById('detailBox').innerHTML = `
+      <button type="button" class="modal-close" onclick="closeDetail()">✕</button>
+      <div class="detail-img">
+        ${isBest(p) ? `<span class="rank-badge">인기 ${overallRank[p.id]}위</span>` : ''}
+        ${p.emoji}
+      </div>
+      <div class="detail-info">
+        <div class="brand-link">${p.brand} 브랜드관 ›</div>
+        <h2>${p.name}</h2>
+        <div class="stars">${stars(p)} <b style="color:#333">${p.rating}</b> · 상품평 ${p.reviews.toLocaleString('ko-KR')}개</div>
+        <div class="price-box">
+          ${rate > 0 ? `<div class="orig"><span class="rate">${rate}%</span><del>${won(p.price)}</del></div>` : ''}
+          <div class="now"><strong>${won(p.sale)}</strong>${p.fast ? '<span class="fast-badge">⚡빠른배송</span>' : ''}</div>
+          <div class="point">최대 ${won(Math.floor(p.sale * POINT_RATE))} 적립</div>
+        </div>
+        <div class="ship">
+          ${arrival(p)}<br>
+          배송비 ${won(SHIPPING_FEE)} · ${won(FREE_SHIPPING)} 이상 구매 시 무료배송<br>
+          ${p.stock <= 5 ? `<span style="color:var(--red)">품절임박 · ${p.stock}개 남음</span>` : `재고 ${p.stock}개 · 누적 판매 ${p.sold.toLocaleString('ko-KR')}개`}
+        </div>
+        <div class="detail-qty">
+          <div class="qty">
+            <button onclick="changeDetailQty(-1)">−</button>
+            <span>${detailQty}</span>
+            <button onclick="changeDetailQty(1)">+</button>
+          </div>
+          <div class="detail-total">총 <strong>${won(p.sale * detailQty)}</strong></div>
+        </div>
+        <div class="detail-actions">
+          <button class="add" onclick="addDetailToCart(false)">장바구니 담기</button>
+          <button class="buy" onclick="addDetailToCart(true)">바로구매 ›</button>
+        </div>
+        <div class="desc">${d.desc}</div>
+        <table>${specRows}</table>
+      </div>`;
+  }
+  function addDetailToCart(buyNow) {
+    const p = products.find(x => x.id === detailId);
+    const inCart = cart[p.id] || 0;
+    if (inCart + detailQty > p.stock) {
+      showToast(`재고가 ${p.stock}개뿐이에요 (장바구니에 ${inCart}개 있음)`);
+      return;
+    }
+    cart[p.id] = inCart + detailQty;
+    saveCart();
+    renderCart();
+    closeDetail();
+    if (buyNow) toggleCart(true);
+    else showToast(`🛒 ${p.name} ${detailQty}개 담았어요`);
+  }
+
   // 회원가입 (회원 정보는 이 브라우저에만 저장)
   const USERS_KEY = 'insu-tool-users';
+  let lastSignupEmail = '';
+  const esc = t => t.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   function openSignup() {
     document.getElementById('signupEmail').value = '';
     document.getElementById('signupPw').value = '';
@@ -808,8 +1125,95 @@
       showSignupMsg('fail', '❌ 회원 정보를 저장하지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
       return;
     }
-    showSignupMsg('ok', '🎉 가입이 완료되었습니다');
+    lastSignupEmail = email;
+    showSignupMsg('ok', '🎉 가입이 완료되었습니다<br><a style="color:var(--blue);cursor:pointer;font-size:14px" onclick="closeSignup(); openLogin(lastSignupEmail)">바로 로그인하기 ›</a>');
     document.getElementById('signupPw').value = '';
+  }
+
+  // 로그인 (로그인 상태도 이 브라우저에만 저장)
+  const SESSION_KEY = 'insu-tool-session';
+  function getSession() {
+    try { return localStorage.getItem(SESSION_KEY); } catch (e) { return null; }
+  }
+  function openLogin(email = '') {
+    document.getElementById('loginEmail').value = email;
+    document.getElementById('loginPw').value = '';
+    showLoginMsg('', '');
+    document.getElementById('loginModal').classList.add('open');
+    document.getElementById(email ? 'loginPw' : 'loginEmail').focus();
+  }
+  function closeLogin() {
+    document.getElementById('loginModal').classList.remove('open');
+  }
+  function showLoginMsg(type, text, badFields = []) {
+    const msg = document.getElementById('loginMsg');
+    msg.className = 'msg ' + type;
+    msg.innerHTML = text;
+    ['loginEmail', 'loginPw'].forEach(id =>
+      document.getElementById(id).classList.toggle('error', badFields.includes(id)));
+  }
+  async function login(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+    const pw = document.getElementById('loginPw').value;
+
+    const errors = [];
+    const bad = [];
+    if (!email) { errors.push('이메일을 입력해 주세요.'); bad.push('loginEmail'); }
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errors.push('이메일 형식이 올바르지 않아요. (예: example@email.com)'); bad.push('loginEmail'); }
+    if (!pw) { errors.push('비밀번호를 입력해 주세요.'); bad.push('loginPw'); }
+    if (errors.length) {
+      showLoginMsg('fail', '❌ 로그인하지 못했어요.<br>' + errors.map(t => '· ' + t).join('<br>'), bad);
+      return;
+    }
+
+    let users;
+    try { users = loadUsers(); }
+    catch (err) {
+      showLoginMsg('fail', '❌ 회원 정보를 불러오지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
+      return;
+    }
+    if (!users[email]) {
+      showLoginMsg('fail', '❌ 가입되지 않은 이메일이에요.<br>이메일을 다시 확인하거나 <a style="color:var(--blue);cursor:pointer" onclick="closeLogin(); openSignup()">회원가입</a>을 해 주세요.', ['loginEmail']);
+      return;
+    }
+    const hash = await hashPassword(pw);
+    if (!hash) {
+      showLoginMsg('fail', '❌ 이 브라우저에서는 로그인할 수 없어요. 크롬이나 엣지 최신 버전에서 다시 시도해 주세요.');
+      return;
+    }
+    if (users[email].pw !== hash) {
+      showLoginMsg('fail', '❌ 비밀번호가 맞지 않아요. 다시 입력해 주세요.<br>(영문 대소문자를 구분해요)', ['loginPw']);
+      document.getElementById('loginPw').value = '';
+      return;
+    }
+    try { localStorage.setItem(SESSION_KEY, email); }
+    catch (err) {
+      showLoginMsg('fail', '❌ 로그인 상태를 저장하지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
+      return;
+    }
+    closeLogin();
+    renderAuth();
+    showToast(`👋 ${email.split('@')[0]}님, 환영해요!`);
+  }
+  function logout() {
+    try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+    renderAuth();
+    showToast('로그아웃 되었어요');
+  }
+  function renderAuth() {
+    const email = getSession();
+    const id = email ? email.split('@')[0] : '';
+    const name = esc(id);
+    const shortName = esc(id.length > 6 ? id.slice(0, 6) + '…' : id);
+    document.getElementById('utilAuth').innerHTML = email
+      ? `<a><b>${name}</b>님</a><a onclick="logout()">로그아웃</a>`
+      : `<a onclick="openLogin()">로그인</a><a onclick="openSignup()">회원가입</a>`;
+    document.getElementById('headerAuth').innerHTML = email
+      ? `<button class="icon-btn" title="${email ? esc(email) : ''}"><span class="ico">😊</span>${shortName}님</button>
+         <button class="icon-btn" onclick="logout()"><span class="ico">🚪</span>로그아웃</button>`
+      : `<button class="icon-btn" onclick="openLogin()"><span class="ico">🔑</span>로그인</button>
+         <button class="icon-btn" onclick="openSignup()"><span class="ico">👤</span>회원가입</button>`;
   }
 
   let toastTimer;
@@ -827,7 +1231,7 @@
   function goSlide(i) {
     slideIndex = (i + slideCount) % slideCount;
     document.getElementById('slides').style.transform = `translateX(-${slideIndex * 100}%)`;
-    document.querySelectorAll('#dots span').forEach((d, n) => d.classList.toggle('on', n === slideIndex));
+    document.getElementById('slideCount').textContent = `${slideIndex + 1} / ${slideCount}`;
   }
   function moveSlide(d) { goSlide(slideIndex + d); restartAuto(); }
   let autoTimer;
@@ -835,10 +1239,9 @@
     clearInterval(autoTimer);
     autoTimer = setInterval(() => goSlide(slideIndex + 1), 4000);
   }
-  document.getElementById('dots').innerHTML =
-    Array.from({ length: slideCount }, (_, i) => `<span onclick="goSlide(${i}); restartAuto()"></span>`).join('');
 
-  renderNav();
+  renderMenus();
+  renderAuth();
   renderProducts();
   renderCart();
   goSlide(0);
