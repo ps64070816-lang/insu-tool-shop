@@ -350,6 +350,78 @@
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
 
+  /* 회원가입 */
+  .header-btns { display: flex; gap: 8px; }
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 30;
+  }
+  .modal.open { display: flex; }
+  .modal-box {
+    background: white;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 380px;
+    padding: 28px 24px;
+    position: relative;
+    border-top: 6px solid #1e6fa6;
+    background: #f3f9fd;
+  }
+  .modal-box h3 { margin: 0 0 4px; font-size: 22px; color: #14507a; }
+  .modal-box .sub { color: #4b7a9c; font-size: 13px; margin-bottom: 20px; }
+  .modal-close {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: #888;
+  }
+  .modal-box label { display: block; font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #14507a; }
+  .modal-box input {
+    width: 100%;
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #a9cbe3;
+    border-radius: 4px;
+    margin-bottom: 14px;
+    background: white;
+  }
+  .modal-box input:focus { outline: none; border-color: #1e6fa6; box-shadow: 0 0 0 3px rgba(30,111,166,0.2); }
+  .modal-box input::placeholder { color: #8aa9c0; }
+  .modal-box input.error { border-color: #d62828; background: #fff5f5; }
+  .modal-box .hint { font-size: 12px; color: #4b7a9c; margin: -8px 0 14px; }
+  .modal-box .submit {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 4px;
+    background: #1e6fa6;
+    color: white;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .modal-box .submit:hover { background: #14507a; }
+  .msg {
+    display: none;
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .msg.fail { display: block; background: #fdecec; color: #b01e1e; }
+  .msg.ok { display: block; background: #eaf6ea; color: #1f6e1f; font-weight: bold; text-align: center; font-size: 16px; }
+
   /* 하단 */
   footer {
     background: #1c1c1c;
@@ -380,7 +452,10 @@
     <input id="searchInput" type="text" placeholder="드릴, 렌치, 줄자... 공구를 검색하세요">
     <button type="submit">검색</button>
   </form>
-  <button class="cart-btn" onclick="toggleCart(true)">🛒 장바구니<b id="cartCount">0</b></button>
+  <div class="header-btns">
+    <button class="cart-btn" onclick="openSignup()">👤 회원가입</button>
+    <button class="cart-btn" onclick="toggleCart(true)">🛒 장바구니<b id="cartCount">0</b></button>
+  </div>
 </header>
 
 <nav id="categoryNav"></nav>
@@ -443,6 +518,21 @@
 </aside>
 
 <div class="toast" id="toast"></div>
+
+<div class="modal" id="signupModal" onclick="if (event.target === this) closeSignup()">
+  <form class="modal-box" onsubmit="signup(event)" novalidate>
+    <button type="button" class="modal-close" onclick="closeSignup()">✕</button>
+    <h3>👤 회원가입</h3>
+    <div class="sub">인수의 공구가게 회원이 되어 보세요</div>
+    <label for="signupEmail">이메일</label>
+    <input id="signupEmail" type="email" placeholder="예: insu@email.com" autocomplete="email">
+    <label for="signupPw">비밀번호</label>
+    <input id="signupPw" type="password" placeholder="영문+숫자 포함 8자 이상 입력하세요" autocomplete="new-password">
+    <div class="hint">8자 이상, 영문과 숫자를 모두 포함해 주세요</div>
+    <button type="submit" class="submit">주주되기</button>
+    <div class="msg" id="signupMsg"></div>
+  </form>
+</div>
 
 <footer>
   <strong>🛠️ 인수의 공구가게</strong><br>
@@ -640,6 +730,86 @@
     saveCart();
     renderCart();
     toggleCart(false);
+  }
+
+  // 회원가입 (회원 정보는 이 브라우저에만 저장)
+  const USERS_KEY = 'insu-tool-users';
+  function openSignup() {
+    document.getElementById('signupEmail').value = '';
+    document.getElementById('signupPw').value = '';
+    showSignupMsg('', '');
+    document.getElementById('signupModal').classList.add('open');
+    document.getElementById('signupEmail').focus();
+  }
+  function closeSignup() {
+    document.getElementById('signupModal').classList.remove('open');
+  }
+  function showSignupMsg(type, text, badFields = []) {
+    const msg = document.getElementById('signupMsg');
+    msg.className = 'msg ' + type;
+    msg.innerHTML = text;
+    ['signupEmail', 'signupPw'].forEach(id =>
+      document.getElementById(id).classList.toggle('error', badFields.includes(id)));
+  }
+  function loadUsers() {
+    return JSON.parse(localStorage.getItem(USERS_KEY)) || {};
+  }
+  async function hashPassword(pw) {
+    if (!window.crypto || !crypto.subtle) return null;
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
+    return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+  }
+  async function signup(e) {
+    e.preventDefault();
+    const email = document.getElementById('signupEmail').value.trim().toLowerCase();
+    const pw = document.getElementById('signupPw').value;
+
+    const emailErrors = [];
+    if (!email) emailErrors.push('이메일을 입력해 주세요.');
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) emailErrors.push('이메일 형식이 올바르지 않아요. (예: example@email.com)');
+
+    const pwErrors = [];
+    if (!pw) pwErrors.push('비밀번호를 입력해 주세요.');
+    else {
+      if (pw.length < 8) pwErrors.push(`비밀번호가 너무 짧아요. 8자 이상 입력해 주세요. (현재 ${pw.length}자)`);
+      if (!/[A-Za-z]/.test(pw)) pwErrors.push('비밀번호에 영문자를 하나 이상 넣어 주세요.');
+      if (!/[0-9]/.test(pw)) pwErrors.push('비밀번호에 숫자를 하나 이상 넣어 주세요.');
+      if (/\s/.test(pw)) pwErrors.push('비밀번호에 띄어쓰기는 사용할 수 없어요.');
+    }
+
+    const errors = [...emailErrors, ...pwErrors];
+    const bad = [];
+    if (emailErrors.length) bad.push('signupEmail');
+    if (pwErrors.length) bad.push('signupPw');
+
+    let users;
+    try { users = loadUsers(); }
+    catch (err) {
+      showSignupMsg('fail', '❌ 회원 정보를 불러오지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
+      return;
+    }
+    if (!errors.length && users[email]) {
+      errors.push('이미 가입된 이메일이에요. 다른 이메일을 사용해 주세요.');
+      bad.push('signupEmail');
+    }
+    if (errors.length) {
+      showSignupMsg('fail', '❌ 가입하지 못했어요.<br>' + errors.map(t => '· ' + t).join('<br>'), bad);
+      return;
+    }
+
+    const hash = await hashPassword(pw);
+    if (!hash) {
+      showSignupMsg('fail', '❌ 이 브라우저에서는 비밀번호를 안전하게 저장할 수 없어요. 크롬이나 엣지 최신 버전에서 다시 시도해 주세요.');
+      return;
+    }
+    users[email] = { pw: hash, joined: new Date().toISOString() };
+    try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
+    catch (err) {
+      showSignupMsg('fail', '❌ 회원 정보를 저장하지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
+      return;
+    }
+    showSignupMsg('ok', '🎉 가입이 완료되었습니다');
+    document.getElementById('signupPw').value = '';
   }
 
   let toastTimer;
