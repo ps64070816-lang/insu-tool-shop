@@ -534,6 +534,7 @@
     cursor: pointer;
   }
   .modal-box .submit:hover { background: var(--blue-dark); }
+  .modal-box .submit:disabled { background: #9db5f5; cursor: wait; }
   .msg { display: none; margin-top: 14px; padding: 12px; font-size: 14px; line-height: 1.6; }
   .msg.fail { display: block; background: #fdecec; color: #b01e1e; }
   .switch { margin-top: 16px; text-align: center; font-size: 13px; color: #4a5f99; }
@@ -715,12 +716,15 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script>
   // ── Supabase 연결 설정 ──
   // publishable(공개용) 키는 사이트에 넣어도 괜찮은 키예요. secret/service_role 키는 절대 넣지 마세요!
   const SUPABASE_URL = 'https://jrkofuxuhkigwllirkmk.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_AjeTffA5iwUFd-xKLEvDPg_o0yuW6_I';
   let productsLoading = !!(SUPABASE_URL && SUPABASE_ANON_KEY);
+  const sb = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+  let currentUser = null;   // 로그인한 회원 (Supabase 계정)
 
   // 아래 상품은 Supabase에 연결되기 전이나 연결에 실패했을 때 보여주는 기본 상품이에요.
   let products = [
@@ -802,12 +806,90 @@
     return `<span class="star-bar">★★★★★<span style="width:${p.rating / 5 * 100}%">★★★★★</span></span>`;
   }
 
+  // 장바구니 저장
+  // · 비회원: 이 브라우저(localStorage)에 저장
+  // · 회원: Supabase cart_items 표에 저장 (user_id, product_name, price, qty)
+  const CART_KEY = 'insu-tool-cart';
   function loadCart() {
-    try { return JSON.parse(localStorage.getItem('insu-tool-cart')) || {}; }
+    try { return JSON.parse(localStorage.getItem(CART_KEY)) || {}; }
     catch (e) { return {}; }
   }
   function saveCart() {
-    try { localStorage.setItem('insu-tool-cart', JSON.stringify(cart)); } catch (e) {}
+    if (currentUser) syncRemoteCart();
+    else { try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch (e) {} }
+  }
+
+  // Supabase에 마지막으로 저장된 상태 { 상품id: { id: 행id, qty } }
+  let remoteRows = {};
+  const syncQueue = {};
+  function syncRemoteCart() {
+    const ids = new Set([...Object.keys(cart), ...Object.keys(remoteRows)].map(Number));
+    ids.forEach(pid => {
+      if ((cart[pid] || 0) === (remoteRows[pid]?.qty || 0)) return;
+      // 같은 상품은 순서대로 하나씩 저장 (빠르게 여러 번 눌러도 중복 저장 방지)
+      syncQueue[pid] = (syncQueue[pid] || Promise.resolve()).then(() => syncItem(pid));
+    });
+  }
+  async function syncItem(pid) {
+    if (!currentUser) return;
+    const qty = cart[pid] || 0;
+    const row = remoteRows[pid];
+    if (qty === (row?.qty || 0)) return;
+    const p = products.find(x => x.id === pid);
+    let error;
+    if (qty === 0) {
+      ({ error } = await sb.from('cart_items').delete().eq('id', row.id));
+      if (!error) delete remoteRows[pid];
+    } else if (row) {
+      ({ error } = await sb.from('cart_items').update({ qty, price: p.sale }).eq('id', row.id));
+      if (!error) row.qty = qty;
+    } else {
+      let data;
+      ({ data, error } = await sb.from('cart_items')
+        .insert({ user_id: currentUser.id, product_name: p.name, price: p.sale, qty })
+        .select('id').single());
+      if (!error) remoteRows[pid] = { id: data.id, qty };
+    }
+    if (error) {
+      console.error('장바구니 저장 실패:', error);
+      showToast('⚠️ 장바구니를 저장하지 못했어요. 잠시 후 다시 시도해 주세요.');
+    }
+  }
+
+  // 로그인하면 Supabase 장바구니를 불러오고, 로그인 전에 담은 상품을 합쳐요
+  async function loadRemoteCart() {
+    const { data, error } = await sb.from('cart_items')
+      .select('id, product_name, qty')
+      .eq('user_id', currentUser.id)
+      .order('id');
+    if (error) {
+      console.error('장바구니 불러오기 실패:', error);
+      showToast('⚠️ 저장된 장바구니를 불러오지 못했어요');
+      return;
+    }
+    remoteRows = {};
+    const merged = {};
+    for (const row of data) {
+      const p = products.find(x => x.name === row.product_name);
+      if (!p) continue;   // 지금은 판매하지 않는 상품
+      if (remoteRows[p.id]) {
+        // 같은 상품이 두 줄로 저장돼 있으면 한 줄로 합치기
+        merged[p.id] += row.qty;
+        sb.from('cart_items').delete().eq('id', row.id).then(() => {});
+      } else {
+        remoteRows[p.id] = { id: row.id, qty: row.qty };
+        merged[p.id] = row.qty;
+      }
+    }
+    const guest = loadCart();
+    Object.entries(guest).forEach(([id, q]) => {
+      const p = products.find(x => x.id === Number(id));
+      if (p) merged[p.id] = Math.min((merged[p.id] || 0) + q, maxQty(p));
+    });
+    try { localStorage.removeItem(CART_KEY); } catch (e) {}
+    cart = merged;
+    saveCart();
+    renderCart();
   }
 
   // 카테고리 메뉴
@@ -1080,10 +1162,9 @@
     else showToast(`🛒 ${p.name} ${detailQty}개 담았어요`);
   }
 
-  // 회원가입 (회원 정보는 이 브라우저에만 저장)
-  const USERS_KEY = 'insu-tool-users';
-  let lastSignupEmail = '';
+  // 회원가입 (Supabase 계정)
   const esc = t => t.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let lastSignupEmail = '';
   function openSignup() {
     document.getElementById('signupEmail').value = '';
     document.getElementById('signupPw').value = '';
@@ -1101,13 +1182,30 @@
     ['signupEmail', 'signupPw'].forEach(id =>
       document.getElementById(id).classList.toggle('error', badFields.includes(id)));
   }
-  function loadUsers() {
-    return JSON.parse(localStorage.getItem(USERS_KEY)) || {};
+  // Supabase 오류를 한국어로
+  function authErrorText(error) {
+    const m = (error && error.message || '').toLowerCase();
+    if (m.includes('already registered') || m.includes('already been registered') || m.includes('already exists'))
+      return ['이미 가입된 이메일이에요. 로그인해 주세요.', 'email'];
+    if (m.includes('invalid login credentials'))
+      return ['이메일 또는 비밀번호가 맞지 않아요. 다시 확인해 주세요.<br>(영문 대소문자를 구분해요)', 'pw'];
+    if (m.includes('email not confirmed'))
+      return ['이메일 인증이 아직 안 됐어요. 받은 메일함에서 인증 링크를 눌러 주세요.', 'email'];
+    if (m.includes('password'))
+      return ['비밀번호가 조건에 맞지 않아요. 8자 이상, 영문과 숫자를 섞어 주세요.', 'pw'];
+    if (m.includes('email') && m.includes('invalid'))
+      return ['사용할 수 없는 이메일 주소예요. 다른 이메일을 입력해 주세요.', 'email'];
+    if (m.includes('rate limit') || m.includes('too many') || m.includes('security purposes'))
+      return ['요청이 너무 많아요. 1분 정도 기다린 뒤 다시 시도해 주세요.', ''];
+    if (m.includes('fetch') || m.includes('network'))
+      return ['인터넷 연결을 확인해 주세요.', ''];
+    return ['잠시 문제가 생겼어요. 잠시 후 다시 시도해 주세요.', ''];
   }
-  async function hashPassword(pw) {
-    if (!window.crypto || !crypto.subtle) return null;
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-    return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
+  function setBusy(form, busy, label) {
+    const btn = form.querySelector('.submit');
+    btn.disabled = busy;
+    if (busy) { btn.dataset.label = btn.textContent; btn.textContent = label; }
+    else if (btn.dataset.label) btn.textContent = btn.dataset.label;
   }
   async function signup(e) {
     e.preventDefault();
@@ -1131,43 +1229,37 @@
     const bad = [];
     if (emailErrors.length) bad.push('signupEmail');
     if (pwErrors.length) bad.push('signupPw');
-
-    let users;
-    try { users = loadUsers(); }
-    catch (err) {
-      showSignupMsg('fail', '❌ 회원 정보를 불러오지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
-      return;
-    }
-    if (!errors.length && users[email]) {
-      errors.push('이미 가입된 이메일이에요. 다른 이메일을 사용해 주세요.');
-      bad.push('signupEmail');
-    }
     if (errors.length) {
       showSignupMsg('fail', '❌ 가입하지 못했어요.<br>' + errors.map(t => '· ' + t).join('<br>'), bad);
       return;
     }
+    if (!sb) {
+      showSignupMsg('fail', '❌ 회원 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.');
+      return;
+    }
 
-    const hash = await hashPassword(pw);
-    if (!hash) {
-      showSignupMsg('fail', '❌ 이 브라우저에서는 비밀번호를 안전하게 저장할 수 없어요. 크롬이나 엣지 최신 버전에서 다시 시도해 주세요.');
+    const form = e.target;
+    setBusy(form, true, '가입하는 중…');
+    const { data, error } = await sb.auth.signUp({ email, password: pw });
+    setBusy(form, false);
+    // 이미 가입된 이메일이면 Supabase가 오류 대신 빈 identities를 돌려주기도 해요
+    if (error || (data.user && data.user.identities && data.user.identities.length === 0)) {
+      const [text, field] = error ? authErrorText(error) : ['이미 가입된 이메일이에요. 로그인해 주세요.', 'email'];
+      showSignupMsg('fail', '❌ 가입하지 못했어요.<br>· ' + text,
+        field === 'email' ? ['signupEmail'] : field === 'pw' ? ['signupPw'] : []);
       return;
     }
-    users[email] = { pw: hash, joined: new Date().toISOString() };
-    try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); }
-    catch (err) {
-      showSignupMsg('fail', '❌ 회원 정보를 저장하지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
-      return;
-    }
-    lastSignupEmail = email;
-    showSignupMsg('ok', '🎉 가입이 완료되었습니다<br><a style="color:var(--blue);cursor:pointer;font-size:14px" onclick="closeSignup(); openLogin(lastSignupEmail)">바로 로그인하기 ›</a>');
     document.getElementById('signupPw').value = '';
+    lastSignupEmail = email;
+    if (data.session) {
+      await onSignedIn(data.session.user);
+      showSignupMsg('ok', '🎉 가입이 완료되었습니다<br><a style="color:var(--blue);cursor:pointer;font-size:14px" onclick="closeSignup()">쇼핑 계속하기 ›</a>');
+    } else {
+      showSignupMsg('ok', '🎉 가입이 완료되었습니다<br><span style="font-size:13px;font-weight:normal">메일함에서 인증 링크를 누른 뒤 <a style="color:var(--blue);cursor:pointer" onclick="closeSignup(); openLogin(lastSignupEmail)">로그인</a>해 주세요.</span>');
+    }
   }
 
-  // 로그인 (로그인 상태도 이 브라우저에만 저장)
-  const SESSION_KEY = 'insu-tool-session';
-  function getSession() {
-    try { return localStorage.getItem(SESSION_KEY); } catch (e) { return null; }
-  }
+  // 로그인 (Supabase 계정)
   function openLogin(email = '') {
     document.getElementById('loginEmail').value = email;
     document.getElementById('loginPw').value = '';
@@ -1199,43 +1291,43 @@
       showLoginMsg('fail', '❌ 로그인하지 못했어요.<br>' + errors.map(t => '· ' + t).join('<br>'), bad);
       return;
     }
+    if (!sb) {
+      showLoginMsg('fail', '❌ 회원 서버에 연결하지 못했어요. 인터넷 연결을 확인하고 새로고침해 주세요.');
+      return;
+    }
 
-    let users;
-    try { users = loadUsers(); }
-    catch (err) {
-      showLoginMsg('fail', '❌ 회원 정보를 불러오지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
-      return;
-    }
-    if (!users[email]) {
-      showLoginMsg('fail', '❌ 가입되지 않은 이메일이에요.<br>이메일을 다시 확인하거나 <a style="color:var(--blue);cursor:pointer" onclick="closeLogin(); openSignup()">회원가입</a>을 해 주세요.', ['loginEmail']);
-      return;
-    }
-    const hash = await hashPassword(pw);
-    if (!hash) {
-      showLoginMsg('fail', '❌ 이 브라우저에서는 로그인할 수 없어요. 크롬이나 엣지 최신 버전에서 다시 시도해 주세요.');
-      return;
-    }
-    if (users[email].pw !== hash) {
-      showLoginMsg('fail', '❌ 비밀번호가 맞지 않아요. 다시 입력해 주세요.<br>(영문 대소문자를 구분해요)', ['loginPw']);
+    const form = e.target;
+    setBusy(form, true, '로그인 중…');
+    const { data, error } = await sb.auth.signInWithPassword({ email, password: pw });
+    setBusy(form, false);
+    if (error) {
+      const [text, field] = authErrorText(error);
+      showLoginMsg('fail', '❌ ' + text + (field === 'pw'
+        ? '<br><span style="font-size:13px">아직 회원이 아니라면 <a style="color:var(--blue);cursor:pointer" onclick="closeLogin(); openSignup()">회원가입</a>을 해 주세요.</span>' : ''),
+        field === 'pw' ? ['loginEmail', 'loginPw'] : field === 'email' ? ['loginEmail'] : []);
       document.getElementById('loginPw').value = '';
       return;
     }
-    try { localStorage.setItem(SESSION_KEY, email); }
-    catch (err) {
-      showLoginMsg('fail', '❌ 로그인 상태를 저장하지 못했어요. 브라우저의 쿠키·사이트 데이터 저장이 막혀 있는지 확인해 주세요.');
-      return;
-    }
     closeLogin();
-    renderAuth();
+    await onSignedIn(data.user);
     showToast(`👋 ${email.split('@')[0]}님, 환영해요!`);
   }
-  function logout() {
-    try { localStorage.removeItem(SESSION_KEY); } catch (e) {}
+  async function onSignedIn(user) {
+    currentUser = user;
     renderAuth();
+    await loadRemoteCart();
+  }
+  async function logout() {
+    if (sb) await sb.auth.signOut();
+    currentUser = null;
+    remoteRows = {};
+    cart = {};   // 회원 장바구니는 Supabase에 남아 있어요
+    renderAuth();
+    renderCart();
     showToast('로그아웃 되었어요');
   }
   function renderAuth() {
-    const email = getSession();
+    const email = currentUser ? currentUser.email : '';
     const id = email ? email.split('@')[0] : '';
     const name = esc(id);
     const shortName = esc(id.length > 6 ? id.slice(0, 6) + '…' : id);
@@ -1243,7 +1335,7 @@
       ? `<a><b>${name}</b>님</a><a onclick="logout()">로그아웃</a>`
       : `<a onclick="openLogin()">로그인</a><a onclick="openSignup()">회원가입</a>`;
     document.getElementById('headerAuth').innerHTML = email
-      ? `<button class="icon-btn" title="${email ? esc(email) : ''}"><span class="ico">😊</span>${shortName}님</button>
+      ? `<button class="icon-btn" title="${esc(email)}"><span class="ico">😊</span>${shortName}님</button>
          <button class="icon-btn" onclick="logout()"><span class="ico">🚪</span>로그아웃</button>`
       : `<button class="icon-btn" onclick="openLogin()"><span class="ico">🔑</span>로그인</button>
          <button class="icon-btn" onclick="openSignup()"><span class="ico">👤</span>회원가입</button>`;
@@ -1319,13 +1411,20 @@
     }
   }
 
-  renderMenus();
-  renderAuth();
-  renderProducts();
-  renderCart();
-  goSlide(0);
-  restartAuto();
-  loadProductsFromSupabase();
+  async function init() {
+    renderMenus();
+    renderAuth();
+    renderProducts();
+    renderCart();
+    goSlide(0);
+    restartAuto();
+    await loadProductsFromSupabase();
+    if (sb) {
+      const { data } = await sb.auth.getSession();
+      if (data.session) await onSignedIn(data.session.user);
+    }
+  }
+  init();
 </script>
 </body>
 </html>
