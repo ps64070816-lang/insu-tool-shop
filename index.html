@@ -360,6 +360,7 @@
   .point { font-size: 12px; color: var(--gray); margin-top: 4px; }
   .point::before { content: 'P'; display: inline-block; background: #ffb400; color: white; border-radius: 50%; width: 14px; height: 14px; font-size: 10px; text-align: center; line-height: 14px; margin-right: 4px; font-weight: bold; }
   .low-stock { font-size: 12px; color: var(--red); margin-top: 3px; }
+  .empty .retry { margin-top: 10px; padding: 8px 18px; border: 1px solid var(--blue); background: white; color: var(--blue); font-weight: bold; cursor: pointer; }
   .empty { text-align: center; padding: 60px 0; color: var(--gray); grid-column: 1 / -1; line-height: 1.8; }
 
   /* 장바구니 */
@@ -499,6 +500,94 @@
   .detail-actions .buy { background: var(--blue); color: white; border: 1px solid var(--blue); }
   .detail-actions .buy:hover { background: var(--blue-dark); }
 
+  /* 주문서 */
+  .order-page {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 28;
+    overflow-y: auto;
+    display: none;
+  }
+  .order-page.open { display: block; }
+  .order-top { background: white; border-bottom: 1px solid var(--line); }
+  .order-top .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; }
+  .order-top { border-bottom: 2px solid var(--text); }
+  .order-title { display: flex; align-items: center; gap: 16px; }
+  .order-title .logo { font-size: 24px; }
+  .order-top h2 { margin: 0; font-size: 20px; padding-left: 16px; border-left: 1px solid var(--line); }
+  .order-sec h3::before { content: ''; display: inline-block; width: 4px; height: 15px; background: var(--blue); margin-right: 8px; vertical-align: -2px; }
+  .order-top .steps { font-size: 13px; color: var(--gray); }
+  .order-top .steps b { color: var(--blue); }
+  .order-body { max-width: 760px; margin: 0 auto; padding: 20px 16px 120px; }
+  .order-sec { background: white; border: 1px solid var(--line); margin-bottom: 14px; }
+  .order-sec h3 { margin: 0; padding: 14px 18px; font-size: 16px; border-bottom: 1px solid var(--line); }
+  .order-sec .inner { padding: 16px 18px; }
+  .field { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 14px; }
+  .field:last-child { margin-bottom: 0; }
+  .field > label { width: 90px; flex-shrink: 0; padding-top: 11px; font-size: 14px; font-weight: bold; }
+  .field > label i { color: var(--red); font-style: normal; margin-left: 2px; }
+  .field .inputs { flex: 1; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field input {
+    width: 100%;
+    padding: 11px 12px;
+    font-size: 15px;
+    border: 1px solid #ccc;
+  }
+  .field input:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px rgba(52,106,255,0.15); }
+  .field input.error { border-color: var(--red); background: #fff5f5; }
+  .field .err { color: var(--red); font-size: 12px; display: none; }
+  .field .err.show { display: block; }
+  .orderer { font-size: 13px; color: var(--gray); }
+  .order-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .order-item:last-child { border-bottom: none; }
+  .order-item .emoji { width: 56px; height: 56px; background: var(--bg); font-size: 30px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0; }
+  .order-item .emoji img { width: 100%; height: 100%; object-fit: contain; mix-blend-mode: multiply; }
+  .order-item .meta { flex: 1; font-size: 14px; }
+  .order-item .meta .arrival { display: block; margin-top: 2px; }
+  .order-item .amt { text-align: right; font-size: 14px; white-space: nowrap; }
+  .order-item .amt small { display: block; color: var(--gray); }
+  .pay-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+  .pay-row.total { font-size: 18px; font-weight: bold; border-top: 1px solid var(--line); padding-top: 12px; margin: 12px 0 0; }
+  .pay-row.total span:last-child { color: var(--red); }
+  .order-bar {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: white;
+    border-top: 1px solid var(--line);
+    padding: 12px 16px;
+    z-index: 29;
+    display: none;
+  }
+  .order-page.open + .order-bar { display: block; }
+  .order-bar .wrap { max-width: 760px; display: flex; gap: 8px; }
+  .order-bar button { padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; }
+  .order-bar .back { background: white; border: 1px solid #ccc; color: #333; width: 34%; }
+  .order-bar .pay { flex: 1; background: var(--blue); border: 1px solid var(--blue); color: white; }
+  .order-bar .pay:hover { background: var(--blue-dark); }
+  .order-notice { display: none; margin-bottom: 14px; padding: 14px 16px; font-size: 14px; line-height: 1.6; }
+  .order-notice.fail { display: block; background: #fdecec; color: #b01e1e; border: 1px solid #f5c2c2; }
+  .order-notice.ok { display: block; background: #eaf2ff; color: #12286b; border: 1px solid #b3c6f5; }
+  .order-top .steps span.on { color: var(--blue); font-weight: bold; }
+  .order-sec h3 .edit-link {
+    float: right;
+    background: white;
+    border: 1px solid #ccc;
+    font-size: 12px;
+    padding: 4px 10px;
+    cursor: pointer;
+    font-weight: normal;
+    color: #333;
+  }
+  .order-sec h3 .edit-link:hover { border-color: var(--blue); color: var(--blue); }
+  .confirm-list { display: grid; grid-template-columns: 100px 1fr; margin: 0; font-size: 15px; }
+  .confirm-list dt { color: var(--gray); padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .confirm-list dd { margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-weight: bold; word-break: keep-all; overflow-wrap: anywhere; }
+  .confirm-list dt:last-of-type, .confirm-list dd:last-of-type { border-bottom: none; }
+  .confirm-list dd small { display: block; font-weight: normal; color: #444; margin-top: 2px; }
+
   /* 회원가입 */
   .modal-box {
     background: #f3f7ff;
@@ -561,6 +650,12 @@
     .search { order: 5; flex-basis: 100%; height: 40px; }
     .search select { display: none; }
     .icon-btn { width: 50px; font-size: 11px; white-space: nowrap; }
+    .field { flex-direction: column; align-items: stretch; gap: 6px; }
+    .order-title { gap: 10px; }
+    .order-title .logo { font-size: 18px; }
+    .order-top h2 { font-size: 16px; padding-left: 10px; }
+    .order-top .steps { display: none; }
+    .field > label { width: auto; padding-top: 0; }
     .icon-btn .ico { font-size: 22px; }
     .slider { height: 200px; }
     .slide { padding: 0 10%; }
@@ -653,11 +748,89 @@
     <div class="row"><span>총 상품가격</span><span id="subtotal">0원</span></div>
     <div class="row"><span>총 배송비</span><span id="shipping">0원</span></div>
     <div class="row total"><span>총 주문금액</span><span id="total">0원</span></div>
-    <button onclick="checkout()">구매하기</button>
+    <button onclick="checkout()">주문하기</button>
   </div>
 </aside>
 
 <div class="toast" id="toast"></div>
+
+<section class="order-page" id="orderPage">
+  <div class="order-top">
+    <div class="wrap">
+      <div class="order-title">
+        <a class="logo" href="#" onclick="closeOrder(false); return false;">
+          <span class="c1">인</span><span class="c2">수</span><span class="c3">공</span><span class="c4">구</span><span class="c5">가게</span>
+        </a>
+        <h2>주문/결제</h2>
+      </div>
+      <div class="steps">장바구니 › <span data-step="form">주문서</span> › <span data-step="confirm">주문확인</span> › <span data-step="done">주문완료</span></div>
+    </div>
+  </div>
+  <div class="order-body">
+    <div class="order-notice" id="orderNotice"></div>
+
+    <div class="order-sec" id="shipFormSec">
+      <h3>받는 사람 정보</h3>
+      <div class="inner">
+        <div class="orderer" style="margin-bottom:14px">주문하는 분: <b id="ordererEmail"></b></div>
+        <div class="field">
+          <label for="shipName">이름<i>*</i></label>
+          <div class="inputs">
+            <input id="shipName" type="text" placeholder="받는 분 이름 (예: 홍길동)" autocomplete="name" maxlength="20">
+            <div class="err" id="shipNameErr"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="shipPhone">연락처<i>*</i></label>
+          <div class="inputs">
+            <input id="shipPhone" type="tel" placeholder="휴대폰 번호 (예: 010-1234-5678)" autocomplete="tel" maxlength="13" oninput="formatPhone(this)">
+            <div class="err" id="shipPhoneErr"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="shipAddr">주소<i>*</i></label>
+          <div class="inputs">
+            <input id="shipAddr" type="text" placeholder="도로명 또는 지번 주소 (예: 서울 양천구 목동로 123)" autocomplete="street-address">
+            <input id="shipAddr2" type="text" placeholder="상세 주소 (동·호수 등, 선택)" autocomplete="address-line2">
+            <div class="err" id="shipAddrErr"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="order-sec" id="shipConfirmSec" hidden>
+      <h3>받는 사람 정보 <button type="button" class="edit-link" onclick="setOrderStep('form')">수정</button></h3>
+      <div class="inner">
+        <dl class="confirm-list">
+          <dt>받는 분</dt><dd id="cfName"></dd>
+          <dt>연락처</dt><dd id="cfPhone"></dd>
+          <dt>주소</dt><dd id="cfAddr"></dd>
+          <dt>주문하는 분</dt><dd id="cfEmail"></dd>
+        </dl>
+      </div>
+    </div>
+
+    <div class="order-sec">
+      <h3 id="orderItemsTitle">주문 상품</h3>
+      <div class="inner" id="orderItems"></div>
+    </div>
+
+    <div class="order-sec">
+      <h3>결제 금액</h3>
+      <div class="inner">
+        <div class="pay-row"><span>총 상품가격</span><span id="orderSubtotal"></span></div>
+        <div class="pay-row"><span>배송비</span><span id="orderShipping"></span></div>
+        <div class="pay-row total"><span>총 결제금액</span><span id="orderTotal"></span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="order-bar">
+  <div class="wrap">
+    <button class="back" id="orderBackBtn" onclick="orderBack()">‹ 장바구니로</button>
+    <button class="pay" id="payBtn" onclick="orderNext()">다음 ›</button>
+  </div>
+</div>
 
 <div class="modal" id="detailModal" onclick="if (event.target === this) closeDetail()">
   <div class="detail-box" id="detailBox"></div>
@@ -726,31 +899,21 @@
   const sb = window.supabase ? supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
   let currentUser = null;   // 로그인한 회원 (Supabase 계정)
 
-  // 아래 상품은 Supabase에 연결되기 전이나 연결에 실패했을 때 보여주는 기본 상품이에요.
-  let products = [
-    { id: 1,  cat: '전동공구', brand: '파워맥스', name: '18V 충전 드릴 드라이버 세트', emoji: '🔩', price: 189000, sale: 139000, stock: 12, sold: 342, rating: 4.8, reviews: 1284, fast: true },
-    { id: 2,  cat: '전동공구', brand: '파워맥스', name: '4인치 앵글 그라인더', emoji: '⚙️', price: 79000, sale: 59000, stock: 8, sold: 188, rating: 4.6, reviews: 532, fast: true },
-    { id: 3,  cat: '전동공구', brand: '강철공업', name: '충전 임팩 드라이버 20V', emoji: '🔋', price: 159000, sale: 129000, stock: 3, sold: 156, rating: 4.7, reviews: 418, fast: true },
-    { id: 4,  cat: '전동공구', brand: '강철공업', name: '원형톱 7인치', emoji: '🪚', price: 135000, sale: 135000, stock: 6, sold: 74, rating: 4.4, reviews: 97, fast: false },
-    { id: 5,  cat: '수공구', brand: '대한공구', name: '양구 스패너 8종 세트', emoji: '🔧', price: 42000, sale: 34000, stock: 25, sold: 265, rating: 4.7, reviews: 806, fast: true },
-    { id: 6,  cat: '수공구', brand: '대한공구', name: '장도리 망치 16oz', emoji: '🔨', price: 18000, sale: 15000, stock: 40, sold: 210, rating: 4.5, reviews: 641, fast: true },
-    { id: 7,  cat: '수공구', brand: '정밀툴', name: '정밀 드라이버 32종 세트', emoji: '🪛', price: 25000, sale: 19900, stock: 18, sold: 231, rating: 4.6, reviews: 1092, fast: true },
-    { id: 8,  cat: '수공구', brand: '정밀툴', name: '롱노즈 플라이어 6인치', emoji: '🗜️', price: 12000, sale: 12000, stock: 30, sold: 97, rating: 4.3, reviews: 158, fast: false },
-    { id: 9,  cat: '측정공구', brand: '정밀툴', name: '자동 줄자 5.5m', emoji: '📏', price: 9900, sale: 7900, stock: 50, sold: 518, rating: 4.8, reviews: 2315, fast: true },
-    { id: 10, cat: '측정공구', brand: '레이저원', name: '레이저 거리 측정기 40m', emoji: '📐', price: 69000, sale: 54000, stock: 4, sold: 143, rating: 4.5, reviews: 287, fast: true },
-    { id: 11, cat: '측정공구', brand: '레이저원', name: '디지털 수평계 600mm', emoji: '📊', price: 39000, sale: 39000, stock: 9, sold: 66, rating: 4.2, reviews: 74, fast: false },
-    { id: 12, cat: '안전용품', brand: '세이프가드', name: '안전모 (KCs 인증)', emoji: '⛑️', price: 15000, sale: 12000, stock: 60, sold: 289, rating: 4.6, reviews: 455, fast: true },
-    { id: 13, cat: '안전용품', brand: '세이프가드', name: '코팅 작업장갑 10켤레', emoji: '🧤', price: 8000, sale: 6500, stock: 100, sold: 604, rating: 4.9, reviews: 3870, fast: true },
-    { id: 14, cat: '안전용품', brand: '세이프가드', name: '보안경 투명', emoji: '🥽', price: 6000, sale: 6000, stock: 45, sold: 175, rating: 4.4, reviews: 233, fast: false },
-    { id: 15, cat: '철물·부자재', brand: '대한철물', name: '피스·나사 혼합 500개입', emoji: '🔩', price: 14000, sale: 11000, stock: 35, sold: 322, rating: 4.7, reviews: 967, fast: true },
-    { id: 16, cat: '철물·부자재', brand: '대한철물', name: '공구함 3단 철제', emoji: '🧰', price: 45000, sale: 36000, stock: 7, sold: 247, rating: 4.6, reviews: 512, fast: true },
-    { id: 17, cat: '철물·부자재', brand: '대한철물', name: '접이식 알루미늄 사다리 4단', emoji: '🪜', price: 89000, sale: 72000, stock: 2, sold: 58, rating: 4.5, reviews: 88, fast: false },
-    { id: 18, cat: '철물·부자재', brand: '대한철물', name: '와이어 케이블 타이 200개', emoji: '🧷', price: 5000, sale: 5000, stock: 80, sold: 401, rating: 4.7, reviews: 1456, fast: true },
-  ];
+  // 상품은 Supabase products 표에서만 불러와요 (불러오지 못하면 주문할 수 없어요)
+  let products = [];
+  let productsError = false;
+  const esc = t => String(t ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-  const mainCats = ['전동공구', '수공구', '측정공구', '안전용품', '철물·부자재'];
+  const CAT_ORDER = ['전동공구', '수공구', '측정공구', '안전용품', '철물·부자재'];
+  let mainCats = [];
   const catIcons = { '인기': '🏆', '특가': '🔥', '빠른배송': '⚡', '전동공구': '🔋', '수공구': '🔧', '측정공구': '📏', '안전용품': '⛑️', '철물·부자재': '🔩' };
-  const quickCats = ['전체', '인기', '특가', '빠른배송', ...mainCats];
+  let quickCats = [];
+  function computeCats() {
+    const have = [...new Set(products.map(p => p.cat))];
+    mainCats = [...CAT_ORDER.filter(c => have.includes(c)), ...have.filter(c => !CAT_ORDER.includes(c))];
+    quickCats = ['전체', '인기', '특가', '빠른배송', ...mainCats];
+  }
+  computeCats();
   const sorts = [
     { key: 'rank', label: '인기순' },
     { key: 'low', label: '낮은가격순' },
@@ -786,7 +949,7 @@
   const maxQty = p => p.stock ?? Infinity;
   const lowStock = p => p.stock != null && p.stock <= 5;
   // 상품 사진이 있으면 사진, 없으면 이모지
-  const thumb = p => p.image ? `<img src="${p.image}" alt="${p.name}" loading="lazy">` : p.emoji;
+  const thumb = p => p.image ? `<img src="${esc(p.image)}" alt="${esc(p.name)}" loading="lazy">` : esc(p.emoji);
 
   // 도착 예정일: 빠른배송은 오후 3시 전 주문 시 다음 날, 일반은 2일 더 (일요일 제외)
   const DAYS = ['일', '월', '화', '수', '목', '금', '토'];
@@ -846,7 +1009,7 @@
     } else {
       let data;
       ({ data, error } = await sb.from('cart_items')
-        .insert({ user_id: currentUser.id, product_name: p.name, price: p.sale, qty })
+        .insert({ user_id: currentUser.id, product_id: pid, product_name: p.name, price: p.sale, qty })
         .select('id').single());
       if (!error) remoteRows[pid] = { id: data.id, qty };
     }
@@ -859,7 +1022,7 @@
   // 로그인하면 Supabase 장바구니를 불러오고, 로그인 전에 담은 상품을 합쳐요
   async function loadRemoteCart() {
     const { data, error } = await sb.from('cart_items')
-      .select('id, product_name, qty')
+      .select('id, product_id, qty')
       .eq('user_id', currentUser.id)
       .order('id');
     if (error) {
@@ -870,7 +1033,7 @@
     remoteRows = {};
     const merged = {};
     for (const row of data) {
-      const p = products.find(x => x.name === row.product_name);
+      const p = products.find(x => x.id === row.product_id);
       if (!p) continue;   // 지금은 판매하지 않는 상품
       if (remoteRows[p.id]) {
         // 같은 상품이 두 줄로 저장돼 있으면 한 줄로 합치기
@@ -895,16 +1058,16 @@
   // 카테고리 메뉴
   function renderMenus() {
     document.getElementById('quickNav').innerHTML = quickCats.map(c =>
-      `<button class="${c === currentCat ? 'active' : ''}" onclick="selectCat('${c}')">${c === '빠른배송' ? '⚡빠른배송' : c}</button>`
+      `<button class="${c === currentCat ? 'active' : ''}" data-cat="${esc(c)}" onclick="selectCat(this.dataset.cat)">${c === '빠른배송' ? '⚡빠른배송' : esc(c)}</button>`
     ).join('');
     document.getElementById('catMenu').innerHTML = ['전체', ...mainCats].map(c =>
-      `<div onclick="selectCat('${c}')">${catIcons[c] || '📦'} ${c}</div>`
+      `<div data-cat="${esc(c)}" onclick="selectCat(this.dataset.cat)">${catIcons[c] || '📦'} ${esc(c)}</div>`
     ).join('');
     document.getElementById('circles').innerHTML = quickCats.slice(1).map(c =>
-      `<button class="circle" onclick="selectCat('${c}')"><span>${catIcons[c]}</span>${c}</button>`
+      `<button class="circle" data-cat="${esc(c)}" onclick="selectCat(this.dataset.cat)"><span>${catIcons[c] || '📦'}</span>${esc(c)}</button>`
     ).join('');
     document.getElementById('searchCat').innerHTML = ['전체', ...mainCats].map(c =>
-      `<option value="${c}">${c}</option>`
+      `<option value="${esc(c)}">${esc(c)}</option>`
     ).join('');
     document.getElementById('sortTabs').innerHTML = sorts.map(s =>
       `<button class="${s.key === currentSort ? 'active' : ''}" onclick="selectSort('${s.key}')">${s.label}</button>`
@@ -961,13 +1124,18 @@
     if (currentSort === 'review') list.sort((a, b) => b.reviews - a.reviews);
     if (currentSort === 'discount') list.sort((a, b) => discount(b) - discount(a));
 
-    const title = keyword ? `'${keyword}' 검색 결과` : currentCat === '전체' ? '전체 상품' : currentCat;
+    const title = esc(keyword ? `'${keyword}' 검색 결과` : currentCat === '전체' ? '전체 상품' : currentCat);
     document.getElementById('listTitle').innerHTML = `${title}<small>${list.length}개 상품</small>`;
 
     const grid = document.getElementById('productGrid');
     if (productsLoading) {
       document.getElementById('listTitle').innerHTML = `${title}<small>불러오는 중…</small>`;
       grid.innerHTML = '<div class="empty">⏳ 상품을 불러오는 중이에요…</div>';
+      return;
+    }
+    if (productsError) {
+      document.getElementById('listTitle').innerHTML = title;
+      grid.innerHTML = '<div class="empty">⚠️ 상품 정보를 불러오지 못했어요.<br><button class="retry" onclick="retryProducts()">다시 불러오기</button></div>';
       return;
     }
     if (!list.length) {
@@ -983,7 +1151,7 @@
             ${thumb(p)}
             <button class="quick-cart" title="장바구니 담기" onclick="event.stopPropagation(); addToCart(${p.id})">🛒</button>
           </div>
-          <div class="name">${p.name}</div>
+          <div class="name">${esc(p.name)}</div>
           <div class="orig">${rate > 0 ? `<span class="rate">${rate}%</span><del>${won(p.price)}</del>` : ''}</div>
           <div class="now"><strong>${won(p.sale)}</strong>${p.fast ? '<span class="fast-badge">⚡빠른배송</span>' : ''}</div>
           ${arrival(p)}
@@ -1017,7 +1185,7 @@
     renderCart();
   }
   function renderCart() {
-    const ids = Object.keys(cart).map(Number);
+    const ids = Object.keys(cart).map(Number).filter(id => products.some(p => p.id === id));
     const count = ids.reduce((s, id) => s + cart[id], 0);
     document.getElementById('cartCount').textContent = count;
 
@@ -1031,7 +1199,7 @@
           <div class="cart-item">
             <div class="emoji">${thumb(p)}</div>
             <div class="meta">
-              <div>${p.name}</div>
+              <div>${esc(p.name)}</div>
               ${arrival(p)}
               <strong>${won(p.sale * cart[id])}</strong>
             </div>
@@ -1055,37 +1223,201 @@
     document.getElementById('drawer').classList.toggle('open', open);
     document.getElementById('overlay').classList.toggle('open', open);
   }
+  // 주문하기 → 주문서 (로그인 + 장바구니에 상품이 있어야 해요)
   function checkout() {
-    if (!Object.keys(cart).length) { showToast('장바구니가 비어 있어요'); return; }
-    const total = document.getElementById('total').textContent;
-    alert(`주문이 접수되었습니다!\n결제 금액: ${total}\n\n인수의 공구가게를 이용해 주셔서 감사합니다 🛠️`);
-    cart = {};
-    saveCart();
-    renderCart();
+    if (!Object.keys(cart).length) {
+      showToast('🛒 장바구니가 비어 있어요. 상품을 먼저 담아 주세요.');
+      return;
+    }
+    if (!currentUser) {
+      toggleCart(false);
+      openLogin();
+      showLoginMsg('fail', '🔒 주문하려면 로그인이 필요해요.<br>로그인한 뒤 장바구니에서 다시 주문하기를 눌러 주세요.');
+      return;
+    }
+    openOrder();
+  }
+  function openOrder() {
     toggleCart(false);
+    renderOrder();
+    document.getElementById('ordererEmail').textContent = currentUser.email;
+    document.getElementById('orderNotice').className = 'order-notice';
+    ['shipName', 'shipPhone', 'shipAddr'].forEach(id => setFieldError(id, ''));
+    setOrderStep('form');
+    document.getElementById('orderPage').classList.add('open');
+    document.getElementById('orderPage').scrollTop = 0;
+    document.body.style.overflow = 'hidden';
+  }
+  function closeOrder(toCart = true) {
+    document.getElementById('orderPage').classList.remove('open');
+    document.body.style.overflow = '';
+    if (toCart) toggleCart(true);
+  }
+  // 주문서 단계: form(받는 사람 입력) → confirm(주문 내용 확인)
+  let orderStep = 'form';
+  let orderTotalText = '';
+  let orderTotalValue = 0;
+  function setOrderStep(step) {
+    orderStep = step;
+    const confirm = step === 'confirm' || step === 'done';
+    document.getElementById('shipFormSec').hidden = confirm;
+    document.getElementById('shipConfirmSec').hidden = !confirm;
+    document.querySelector('#shipConfirmSec .edit-link').hidden = step === 'done';
+    document.getElementById('orderBackBtn').hidden = step === 'done';
+    document.querySelectorAll('.order-top .steps span').forEach(el => el.classList.toggle('on', el.dataset.step === step));
+    document.getElementById('orderBackBtn').textContent = confirm ? '‹ 수정하기' : '‹ 장바구니로';
+    document.getElementById('payBtn').textContent =
+      step === 'done' ? '쇼핑 계속하기' : confirm ? `${orderTotalText} 주문하기` : '다음 ›';
+    const notice = document.getElementById('orderNotice');
+    if (step === 'confirm') {
+      notice.className = 'order-notice ok';
+      notice.innerHTML = '📋 주문 내용을 한 번 더 확인해 주세요.<br>받는 사람 정보가 틀렸다면 <b>수정</b>을 눌러 고칠 수 있어요.';
+    } else {
+      notice.className = 'order-notice';
+    }
+    document.getElementById('orderPage').scrollTop = 0;
+  }
+  function orderBack() {
+    if (orderStep === 'confirm') setOrderStep('form');
+    else closeOrder();
+  }
+  function orderNext() {
+    if (orderStep === 'form') {
+      const info = checkShipping();
+      if (!info) return;
+      document.getElementById('cfName').textContent = info.name;
+      document.getElementById('cfPhone').textContent = info.phone;
+      const addr = document.getElementById('cfAddr');
+      addr.textContent = info.addr;
+      if (info.addr2) {
+        const small = document.createElement('small');
+        small.textContent = info.addr2;
+        addr.appendChild(small);
+      }
+      document.getElementById('cfEmail').textContent = currentUser.email;
+      setOrderStep('confirm');
+    } else if (orderStep === 'confirm') {
+      placeOrder();
+    } else {
+      closeOrder(false);
+    }
+  }
+  // 주문 저장: 가격·재고 확인은 Supabase place_order 함수가 해요 (supabase/orders.sql)
+  let ordering = false;
+  async function placeOrder() {
+    if (ordering) return;
+    const notice = document.getElementById('orderNotice');
+    const payBtn = document.getElementById('payBtn');
+    ordering = true;
+    payBtn.disabled = true;
+    payBtn.textContent = '주문하는 중…';
+    // 장바구니 저장이 끝난 뒤에 주문해요 (서버 장바구니 기준으로 주문돼요)
+    syncRemoteCart();
+    await Promise.all(Object.values(syncQueue));
+    const { data, error } = await sb.rpc('place_order', {
+      p_ship_name: document.getElementById('shipName').value.trim(),
+      p_ship_phone: document.getElementById('shipPhone').value.trim(),
+      p_ship_addr: document.getElementById('shipAddr').value.trim(),
+      p_ship_addr2: document.getElementById('shipAddr2').value.trim() || null,
+      p_expected_total: orderTotalValue,
+    });
+    ordering = false;
+    payBtn.disabled = false;
+    if (error) {
+      console.error('주문 실패:', error);
+      setOrderStep('confirm');
+      notice.className = 'order-notice fail';
+      notice.innerHTML = '❌ 주문하지 못했어요.<br>· ' + esc(orderErrorText(error));
+      // 재고·가격이 바뀌었을 수 있으니 최신 정보로 다시 불러와요
+      if (/재고|가격|비어/.test(error.message || '')) {
+        await loadProductsFromSupabase();
+        await loadRemoteCart();
+        renderOrder();
+      }
+      return;
+    }
+    cart = {};
+    remoteRows = {};
+    renderCart();
+    setOrderStep('done');
+    notice.className = 'order-notice ok';
+    notice.innerHTML = `🎉 주문이 접수되었어요!<br>주문번호 <b>${data.order_id}</b> · 결제금액 <b>${won(data.total)}</b><br>
+      <span style="font-size:13px">온라인 결제는 아직 연결되지 않아 <b>주문접수</b> 상태로 저장돼요.</span>`;
+    loadProductsFromSupabase();   // 줄어든 재고 반영
+  }
+  function orderErrorText(error) {
+    const m = error.message || '';
+    if (/[가-힣]/.test(m)) return m;   // place_order 함수가 보낸 한국어 메시지
+    if (m.includes('place_order') || error.code === 'PGRST202')
+      return '주문 기능이 아직 준비되지 않았어요. (관리자: supabase/orders.sql 실행 필요)';
+    if (m.toLowerCase().includes('fetch')) return '인터넷 연결을 확인해 주세요.';
+    return '잠시 문제가 생겼어요. 잠시 후 다시 시도해 주세요.';
+  }
+  function renderOrder() {
+    const ids = Object.keys(cart).map(Number).filter(id => products.some(p => p.id === id));
+    const count = ids.reduce((s, id) => s + cart[id], 0);
+    document.getElementById('orderItemsTitle').textContent = `주문 상품 (${count}개)`;
+    document.getElementById('orderItems').innerHTML = ids.map(id => {
+      const p = products.find(x => x.id === id);
+      return `
+        <div class="order-item">
+          <div class="emoji">${thumb(p)}</div>
+          <div class="meta">${esc(p.name)}${arrival(p)}</div>
+          <div class="amt"><b>${won(p.sale * cart[id])}</b><small>${won(p.sale)} × ${cart[id]}개</small></div>
+        </div>`;
+    }).join('');
+    const subtotal = ids.reduce((s, id) => s + products.find(x => x.id === id).sale * cart[id], 0);
+    const shipping = subtotal >= FREE_SHIPPING ? 0 : SHIPPING_FEE;
+    document.getElementById('orderSubtotal').textContent = won(subtotal);
+    document.getElementById('orderShipping').textContent = shipping ? won(shipping) : '무료';
+    document.getElementById('orderTotal').textContent = won(subtotal + shipping);
+    orderTotalText = won(subtotal + shipping);
+    orderTotalValue = subtotal + shipping;
+  }
+  // 휴대폰 번호 입력 시 자동으로 - 넣기
+  function formatPhone(input) {
+    const d = input.value.replace(/\D/g, '').slice(0, 11);
+    input.value = d.length < 4 ? d
+      : d.length < 8 ? `${d.slice(0, 3)}-${d.slice(3)}`
+      : d.length < 11 ? `${d.slice(0, 3)}-${d.slice(3, 6)}-${d.slice(6)}`
+      : `${d.slice(0, 3)}-${d.slice(3, 7)}-${d.slice(7)}`;
+  }
+  function setFieldError(id, text) {
+    document.getElementById(id).classList.toggle('error', !!text);
+    const err = document.getElementById(id + 'Err');
+    err.textContent = text;
+    err.classList.toggle('show', !!text);
+  }
+  function checkShipping() {
+    const name = document.getElementById('shipName').value.trim();
+    const phone = document.getElementById('shipPhone').value.trim();
+    const addr = document.getElementById('shipAddr').value.trim();
+
+    const nameErr = !name ? '받는 분 이름을 입력해 주세요.'
+      : name.length < 2 ? '이름을 2자 이상 입력해 주세요.'
+      : /[0-9]/.test(name) ? '이름에는 숫자를 넣을 수 없어요.' : '';
+    const digits = phone.replace(/\D/g, '');
+    const phoneErr = !phone ? '연락처를 입력해 주세요.'
+      : !/^01[016789]\d{7,8}$/.test(digits) ? '휴대폰 번호를 정확히 입력해 주세요. (예: 010-1234-5678)' : '';
+    const addrErr = !addr ? '주소를 입력해 주세요.'
+      : addr.length < 5 ? '주소를 조금 더 자세히 입력해 주세요. (예: 서울 양천구 목동로 123)' : '';
+
+    setFieldError('shipName', nameErr);
+    setFieldError('shipPhone', phoneErr);
+    setFieldError('shipAddr', addrErr);
+    const notice = document.getElementById('orderNotice');
+    const errors = [nameErr, phoneErr, addrErr].filter(Boolean);
+    if (errors.length) {
+      notice.className = 'order-notice fail';
+      notice.innerHTML = '❌ 받는 사람 정보를 확인해 주세요.<br>' + errors.map(t => '· ' + t).join('<br>');
+      document.getElementById('orderPage').scrollTop = 0;
+      return null;
+    }
+    return { name, phone, addr, addr2: document.getElementById('shipAddr2').value.trim() };
   }
 
   // 상품 상세
-  let details = {
-    1:  { desc: '가볍고 힘 좋은 18V 충전 드릴. 목공·철재 구멍 뚫기와 나사 체결을 한 대로 해결합니다.', specs: { '전압': '18V', '토크': '최대 55Nm', '구성': '본체, 배터리 2개, 충전기, 비트 세트, 케이스', '보증': '1년' } },
-    2:  { desc: '철재 절단, 용접부 연마, 녹 제거에 쓰는 4인치 앵글 그라인더입니다.', specs: { '소비전력': '750W', '디스크': '100mm', '회전수': '12,000rpm', '보증': '1년' } },
-    3:  { desc: '긴 피스도 거뜬한 강력한 타격력의 20V 임팩 드라이버.', specs: { '전압': '20V', '토크': '최대 180Nm', '구성': '본체, 배터리 1개, 충전기', '보증': '1년' } },
-    4:  { desc: '합판·각재 직선 절단용 7인치 원형톱. 각도 조절 가능.', specs: { '소비전력': '1,400W', '톱날': '185mm', '절단 깊이': '최대 63mm', '보증': '1년' } },
-    5:  { desc: '자주 쓰는 규격만 모은 양구 스패너 8종 세트. 크롬바나듐강으로 튼튼합니다.', specs: { '규격': '8~19mm (8종)', '재질': '크롬바나듐강', '구성': '스패너 8개, 거치대' } },
-    6:  { desc: '못 박기와 못 뽑기를 한 번에. 손에 잘 맞는 고무 손잡이 장도리.', specs: { '무게': '16oz (약 450g)', '손잡이': '미끄럼 방지 고무', '전체 길이': '330mm' } },
-    7:  { desc: '전자기기·안경·시계 수리에 딱 맞는 정밀 드라이버 32종 세트.', specs: { '구성': '비트 30종, 핸들, 연장대', '재질': 'S2 공구강', '케이스': '자석 보관함' } },
-    8:  { desc: '좁은 곳 작업과 전선 작업에 편한 6인치 롱노즈 플라이어.', specs: { '길이': '6인치 (150mm)', '기능': '집기, 구부리기, 전선 절단', '손잡이': '절연 그립' } },
-    9:  { desc: '현장 필수품! 자동 잠금 기능이 있는 5.5m 줄자.', specs: { '길이': '5.5m', '폭': '25mm', '기능': '자동 잠금, 벨트 클립' } },
-    10: { desc: '버튼 한 번으로 최대 40m 거리를 정확하게 측정합니다.', specs: { '측정 범위': '0.05 ~ 40m', '정확도': '±2mm', '기능': '거리, 면적, 부피 계산', '전원': 'AAA 건전지 2개' } },
-    11: { desc: '각도를 숫자로 보여주는 디지털 수평계. 자석 부착 가능.', specs: { '길이': '600mm', '표시': '디지털 각도 (0.1°)', '기능': '자석 부착, 수평·수직 측정' } },
-    12: { desc: 'KCs 인증을 받은 현장용 안전모. 크기 조절 가능한 내피.', specs: { '인증': 'KCs 안전인증', '재질': 'ABS', '크기': '머리둘레 조절식' } },
-    13: { desc: '손에 착 붙는 코팅 장갑 10켤레 묶음. 미끄럼 방지로 작업이 편합니다.', specs: { '수량': '10켤레', '코팅': '손바닥 NBR 코팅', '사이즈': '프리 (L)' } },
-    14: { desc: '파편과 먼지로부터 눈을 보호하는 투명 보안경. 김서림 방지.', specs: { '렌즈': '폴리카보네이트', '기능': '김서림 방지, 자외선 차단', '안경 위 착용': '가능' } },
-    15: { desc: '집수리에 자주 쓰는 피스와 나사를 규격별로 담은 500개 세트.', specs: { '수량': '약 500개', '종류': '목재용·철판용 피스, 볼트·너트', '보관': '칸막이 케이스' } },
-    16: { desc: '공구를 한 번에 정리하는 3단 철제 공구함. 펼치면 3단으로 열립니다.', specs: { '크기': '440 × 200 × 210mm', '재질': '철제 분체도장', '구조': '3단 펼침식' } },
-    17: { desc: '가볍고 튼튼한 알루미늄 접이식 사다리. 접으면 보관이 쉽습니다.', specs: { '단수': '4단', '높이': '펼침 시 약 1.1m', '최대 하중': '100kg', '무게': '4.2kg' } },
-    18: { desc: '전선 정리와 고정에 쓰는 케이블 타이 200개입.', specs: { '수량': '200개', '길이': '200mm', '재질': '나일론 66' } },
-  };
+  let details = {};
   let detailId = null;
   let detailQty = 1;
   function openDetail(id) {
@@ -1109,7 +1441,7 @@
     const p = products.find(x => x.id === detailId);
     const d = details[p.id] || { desc: '', specs: {} };
     const rate = discount(p);
-    const specRows = Object.entries(d.specs).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+    const specRows = Object.entries(d.specs).map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('');
     document.getElementById('detailBox').innerHTML = `
       <button type="button" class="modal-close" onclick="closeDetail()">✕</button>
       <div class="detail-img">
@@ -1117,8 +1449,8 @@
         ${thumb(p)}
       </div>
       <div class="detail-info">
-        ${p.brand ? `<div class="brand-link">${p.brand} 브랜드관 ›</div>` : `<div class="brand-link">${p.cat}</div>`}
-        <h2>${p.name}</h2>
+        ${p.brand ? `<div class="brand-link">${esc(p.brand)} 브랜드관 ›</div>` : `<div class="brand-link">${esc(p.cat)}</div>`}
+        <h2>${esc(p.name)}</h2>
         ${p.rating != null ? `<div class="stars">${stars(p)} <b style="color:#333">${p.rating}</b> · 상품평 ${p.reviews.toLocaleString('ko-KR')}개</div>` : ''}
         <div class="price-box">
           ${rate > 0 ? `<div class="orig"><span class="rate">${rate}%</span><del>${won(p.price)}</del></div>` : ''}
@@ -1143,7 +1475,7 @@
           <button class="add" onclick="addDetailToCart(false)">장바구니 담기</button>
           <button class="buy" onclick="addDetailToCart(true)">바로구매 ›</button>
         </div>
-        <div class="desc">${d.desc}</div>
+        <div class="desc">${esc(d.desc)}</div>
         ${specRows ? `<table>${specRows}</table>` : ''}
       </div>`;
   }
@@ -1163,7 +1495,6 @@
   }
 
   // 회원가입 (Supabase 계정)
-  const esc = t => t.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   let lastSignupEmail = '';
   function openSignup() {
     document.getElementById('signupEmail').value = '';
@@ -1380,7 +1711,7 @@
         id: r.id,
         cat: r.category || '기타',
         brand: r.brand || '',
-        name: r.name,
+        name: r.name || '',
         emoji: r.emoji || '🛠️',
         image: r.image_url || '',
         price: r.old_price || r.price,   // 정가 (할인 전)
@@ -1394,6 +1725,10 @@
       }));
       details = Object.fromEntries(rows.map(r => [r.id, { desc: r.description || '', specs: r.specs || {} }]));
       computeRanks();
+      computeCats();
+      if (currentCat !== '전체' && !quickCats.includes(currentCat)) currentCat = '전체';
+      renderMenus();
+      productsError = false;
 
       // 장바구니에 지금은 없는 상품이 있으면 빼기
       Object.keys(cart).forEach(id => { if (!products.some(p => p.id === Number(id))) delete cart[id]; });
@@ -1403,12 +1738,21 @@
       renderCart();
     } catch (err) {
       console.error('Supabase 상품 불러오기 실패:', err);
-      showToast('상품 정보를 불러오지 못해 기본 상품을 보여드려요');
+      productsError = true;
+      showToast('⚠️ 상품 정보를 불러오지 못했어요');
     } finally {
       productsLoading = false;
       renderProducts();
       renderCart();
     }
+  }
+
+  async function retryProducts() {
+    productsLoading = true;
+    productsError = false;
+    renderProducts();
+    await loadProductsFromSupabase();
+    if (currentUser) await loadRemoteCart();
   }
 
   async function init() {
